@@ -1,0 +1,86 @@
+[
+    {
+        "kernel_type": 0,
+        "Cvalue": 5,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.38632712364197,
+            "min_elapsed_time": 27.902207851409912,
+            "max_elapsed_time": 28.708099126815796
+        }
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 5.5,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.703284883499144,
+            "min_elapsed_time": 28.238817930221558,
+            "max_elapsed_time": 29.671117067337036
+        }
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 6,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.018986701965332,
+            "min_elapsed_time": 27.495972394943237,
+            "max_elapsed_time": 28.287126064300537
+        }
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 7,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.000566005706787,
+            "min_elapsed_time": 27.60692000389099,
+            "max_elapsed_time": 28.26343822479248
+        }
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 8,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.0518741607666,
+            "min_elapsed_time": 27.558056116104126,
+            "max_elapsed_time": 28.21945834159851
+        }
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 10,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.43835582733154,
+            "min_elapsed_time": 27.439363479614258,
+            "max_elapsed_time": 29.20881152153015
+        }
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 20,
+        "resultados": {
+            "avg_score": 0.9860788863109049,
+            "min_score": 0.9791183294663574,
+            "max_score": 0.9907192575406032,
+            "avg_elapsed_time": 28.470066928863524,
+            "min_elapsed_time": 28.26580834388733,
+            "max_elapsed_time": 28.810611963272095
+        }
+    }
+]

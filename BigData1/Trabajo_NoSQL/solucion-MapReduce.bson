@@ -1,0 +1,110 @@
+/*******************************************************************************
+* Autor: Nicolás Cubero Torres
+* Descripción: Solución MapReduce para encontrar el par de restaurantes más
+*				próximo de cada cuisine.
+*******************************************************************************/
+
+/// Solución con MapReduce
+db.runCommand(
+	{ 
+
+		"mapReduce": "restaurants",
+
+		"map": function mapCode() {
+
+				// Calcular el mayor "score" de "grades"
+				var max_grade_score = 0;
+
+				for (var g in this.grades) {
+					if (this.grades[g].score > max_grade_score) {
+						max_grade_score = this.grades[g].score
+					}
+				}
+
+				// Emitir el par <key, valor> para los restaurantes que tengan
+				// algún grade con score 7
+				if (max_grade_score > 7) {
+					emit(this.cuisine,
+						{	"restaurants":
+							[
+								{
+									"_id": this._id,
+									"address": this.address,
+									"borough": this.borough,
+									"max_grade_score": max_grade_score,
+									"name": this.name,
+									"restaurant_id": this.restaurant_id
+								}
+							]
+						});
+				}
+
+			},
+		"reduce": function reduceCode(key, values) {
+
+					var reduced = {"restaurants": []};
+
+					for (var i in values) {
+
+						for (var j in values[i].restaurants) {
+
+							reduced.restaurants.push(values[i].restaurants[j]);
+						}
+
+					}
+
+					return reduced;
+				},
+
+		"finalize": function finalize(key, reduced) {
+
+					if (reduced.restaurants.length == 1) {
+						return {"message": "Esta cuisine sólo registra un restaurante"};
+					}
+
+					var min_dist = Number.MAX_SAFE_INTEGER;
+
+					var rest1;
+					var rest2;
+
+					var aux_r1;
+					var aux_r2;
+					var dist;
+
+					for (var i = 0; i < reduced.restaurants.length-1; i++) {
+
+						for (var j = i+1; j < reduced.restaurants.length; j++) {
+
+							aux_r1 = reduced.restaurants[i];
+							aux_r2 = reduced.restaurants[j];
+
+							// Calcular la distancia entre cada par de ciudades
+							dist = Math.sqrt( Math.pow(aux_r1.address.coord[0] -
+												 aux_r2.address.coord[0], 2) +
+											Math.pow(aux_r1.address.coord[1] -
+											aux_r2.address.coord[0], 2));
+
+							// Quedarnos con los que guarden menor distancia
+							if (dist < min_dist && dist > 0) {
+								min_dist = dist;
+
+								rest1 = aux_r1;
+								rest2 = aux_r2;
+							}
+
+						}
+
+					}
+
+					return {
+								"cuisine": key,
+								"restaurante1": rest1,
+								"restaurante2": rest2,
+								"distancia": min_dist,
+								"restaurantes_evaluados": reduced.restaurants.length
+							};
+
+				},
+		"out": "restaurantes_proximos"
+	}
+);

@@ -1,0 +1,15 @@
+-- Cargar datos
+adult = load 'input/adult.data' using PigStorage(',') AS (age:float, workclass:chararray, fnlwgt:float, education:chararray, education_num:float, marital_status:chararray, occupation:chararray, relationship:chararray, race:chararray, sex: chararray, capital_gain:float, capital_loss:float, hours_per_week:float, native_country:chararray, performance:chararray);
+
+-- Seleccionar únicamente los adultos que desempeñan un cargo público en el Gobierno de EEUU
+gov_workers = filter adult by workclass  in (' Federal-gov', ' Local-goc', ' State-gov');
+
+-- Agrupar por nivel de estudios y raza
+education_race_group = group gov_workers by (education, race);
+
+-- Contar el número de personas por nivel de estudio y raza
+people_races_education_levels = foreach education_race_group generate group,  COUNT(gov_workers.hours_per_week) AS n_people;
+
+-- Almacenar resultados
+store people_races_education_levels into 'pigResults/people_per_race_education_government.csv';
+

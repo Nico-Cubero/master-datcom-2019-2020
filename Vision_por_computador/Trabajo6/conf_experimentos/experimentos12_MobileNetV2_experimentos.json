@@ -1,0 +1,524 @@
+[
+    {
+        "epochs": 25,
+        "arquitectura": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential",
+                "layers": [
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "data_format": "channels_last"
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense1",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "units": 1024,
+                            "activation": "relu",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    },
+                    {
+                        "class_name": "Dropout",
+                        "config": {
+                            "name": "dropout",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "rate": 0.1,
+                            "noise_shape": null,
+                            "seed": null
+                        }
+                    }
+                ]
+            },
+            "keras_version": "2.2.4-tf",
+            "backend": "tensorflow"
+        },
+        "load_weights": true,
+        "batch_size": 10,
+        "script": "train_MobileNetV2.py",
+        "resultados": {
+            "loss_train": 6.460143327713013,
+            "accuracy_train": 0.59375,
+            "loss_test": 5.965157222747803,
+            "accuracy_test": 0.581250011920929,
+            "ratio_loss_train_val": 1.0829795571988625,
+            "precision_train": 0.6,
+            "precision_test": 1.0,
+            "recall_train": 0.019417475728155338,
+            "recall_test": 0.02197802197802198,
+            "f1_train": 0.037617554858934164,
+            "f1_test": 0.043010752688172046,
+            "confusion_matrix_train": {
+                "TP": 6,
+                "TN": 327,
+                "FP": 4,
+                "FN": 303
+            },
+            "confusion_matrix_test": {
+                "TP": 2,
+                "TN": 69,
+                "FP": 0,
+                "FN": 89
+            }
+        }
+    },
+    {
+        "epochs": 25,
+        "arquitectura": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential",
+                "layers": [
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "data_format": "channels_last"
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense1",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "units": 1024,
+                            "activation": "relu",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    },
+                    {
+                        "class_name": "Dropout",
+                        "config": {
+                            "name": "dropout",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "rate": 0.1,
+                            "noise_shape": null,
+                            "seed": null
+                        }
+                    }
+                ]
+            },
+            "keras_version": "2.2.4-tf",
+            "backend": "tensorflow"
+        },
+        "load_weights": true,
+        "batch_size": 20,
+        "script": "train_MobileNetV2.py",
+        "resultados": {
+            "loss_train": 4.763078540563583,
+            "accuracy_train": 0.6343749761581421,
+            "loss_test": 4.041933870315551,
+            "accuracy_test": 0.637499988079071,
+            "ratio_loss_train_val": 1.1784157518123206,
+            "precision_train": 0.7073170731707317,
+            "precision_test": 0.9285714285714286,
+            "recall_train": 0.09385113268608414,
+            "recall_test": 0.14285714285714285,
+            "f1_train": 0.1657142857142857,
+            "f1_test": 0.24761904761904766,
+            "confusion_matrix_train": {
+                "TP": 29,
+                "TN": 319,
+                "FP": 12,
+                "FN": 280
+            },
+            "confusion_matrix_test": {
+                "TP": 13,
+                "TN": 68,
+                "FP": 1,
+                "FN": 78
+            }
+        }
+    },
+    {
+        "epochs": 25,
+        "arquitectura": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential",
+                "layers": [
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "data_format": "channels_last"
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense1",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "units": 1024,
+                            "activation": "relu",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    },
+                    {
+                        "class_name": "Dropout",
+                        "config": {
+                            "name": "dropout",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "rate": 0.1,
+                            "noise_shape": null,
+                            "seed": null
+                        }
+                    }
+                ]
+            },
+            "keras_version": "2.2.4-tf",
+            "backend": "tensorflow"
+        },
+        "load_weights": true,
+        "batch_size": 35,
+        "script": "train_MobileNetV2.py",
+        "resultados": {
+            "loss_train": 2.752380612492561,
+            "accuracy_train": 0.7953125238418579,
+            "loss_test": 1.3594330251216888,
+            "accuracy_test": 0.875,
+            "ratio_loss_train_val": 2.0246533382887204,
+            "precision_train": 0.8156028368794326,
+            "precision_test": 0.9459459459459459,
+            "recall_train": 0.37216828478964403,
+            "recall_test": 0.38461538461538464,
+            "f1_train": 0.5111111111111111,
+            "f1_test": 0.546875,
+            "confusion_matrix_train": {
+                "TP": 115,
+                "TN": 305,
+                "FP": 26,
+                "FN": 194
+            },
+            "confusion_matrix_test": {
+                "TP": 35,
+                "TN": 67,
+                "FP": 2,
+                "FN": 56
+            }
+        }
+    },
+    {
+        "epochs": 25,
+        "arquitectura": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential",
+                "layers": [
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "data_format": "channels_last"
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense1",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "units": 1024,
+                            "activation": "relu",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    },
+                    {
+                        "class_name": "Dropout",
+                        "config": {
+                            "name": "dropout",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "rate": 0.1,
+                            "noise_shape": null,
+                            "seed": null
+                        }
+                    }
+                ]
+            },
+            "keras_version": "2.2.4-tf",
+            "backend": "tensorflow"
+        },
+        "load_weights": true,
+        "batch_size": 50,
+        "script": "train_MobileNetV2.py",
+        "resultados": {
+            "loss_train": 15.674250411987305,
+            "accuracy_train": 0.512499988079071,
+            "loss_test": 18.395575523376465,
+            "accuracy_test": 0.4312500059604645,
+            "ratio_loss_train_val": 0.8520663238869046,
+            "precision_train": 0.0,
+            "precision_test": 1.0,
+            "recall_train": 0.0,
+            "recall_test": 0.01098901098901099,
+            "f1_train": 0.0,
+            "f1_test": 0.02173913043478261,
+            "confusion_matrix_train": {
+                "TP": 0,
+                "TN": 330,
+                "FP": 1,
+                "FN": 309
+            },
+            "confusion_matrix_test": {
+                "TP": 1,
+                "TN": 69,
+                "FP": 0,
+                "FN": 90
+            }
+        }
+    },
+    {
+        "epochs": 25,
+        "arquitectura": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential",
+                "layers": [
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "data_format": "channels_last"
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense1",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "units": 1024,
+                            "activation": "relu",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    },
+                    {
+                        "class_name": "Dropout",
+                        "config": {
+                            "name": "dropout",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "rate": 0.1,
+                            "noise_shape": null,
+                            "seed": null
+                        }
+                    }
+                ]
+            },
+            "keras_version": "2.2.4-tf",
+            "backend": "tensorflow"
+        },
+        "load_weights": true,
+        "batch_size": 70,
+        "script": "train_MobileNetV2.py",
+        "resultados": {
+            "loss_train": 11.780886960029601,
+            "accuracy_train": 0.526562511920929,
+            "loss_test": 11.503548431396485,
+            "accuracy_test": 0.4749999940395355,
+            "ratio_loss_train_val": 1.0241089547531421,
+            "precision_train": 0.4444444444444444,
+            "precision_test": 0.5,
+            "recall_train": 0.012944983818770227,
+            "recall_test": 0.01098901098901099,
+            "f1_train": 0.025157232704402517,
+            "f1_test": 0.021505376344086023,
+            "confusion_matrix_train": {
+                "TP": 4,
+                "TN": 326,
+                "FP": 5,
+                "FN": 305
+            },
+            "confusion_matrix_test": {
+                "TP": 1,
+                "TN": 68,
+                "FP": 1,
+                "FN": 90
+            }
+        }
+    },
+    {
+        "epochs": 25,
+        "arquitectura": {
+            "class_name": "Sequential",
+            "config": {
+                "name": "sequential",
+                "layers": [
+                    {
+                        "class_name": "Flatten",
+                        "config": {
+                            "name": "flatten",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "data_format": "channels_last"
+                        }
+                    },
+                    {
+                        "class_name": "Dense",
+                        "config": {
+                            "name": "dense1",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "units": 1024,
+                            "activation": "relu",
+                            "use_bias": true,
+                            "kernel_initializer": {
+                                "class_name": "GlorotUniform",
+                                "config": {
+                                    "seed": null
+                                }
+                            },
+                            "bias_initializer": {
+                                "class_name": "Zeros",
+                                "config": {}
+                            },
+                            "kernel_regularizer": null,
+                            "bias_regularizer": null,
+                            "activity_regularizer": null,
+                            "kernel_constraint": null,
+                            "bias_constraint": null
+                        }
+                    },
+                    {
+                        "class_name": "Dropout",
+                        "config": {
+                            "name": "dropout",
+                            "trainable": true,
+                            "dtype": "float32",
+                            "rate": 0.1,
+                            "noise_shape": null,
+                            "seed": null
+                        }
+                    }
+                ]
+            },
+            "keras_version": "2.2.4-tf",
+            "backend": "tensorflow"
+        },
+        "load_weights": true,
+        "batch_size": 100,
+        "script": "train_MobileNetV2.py",
+        "resultados": {
+            "loss_train": 27.470190715789794,
+            "accuracy_train": 0.5140625238418579,
+            "loss_test": 31.701374435424803,
+            "accuracy_test": 0.4375,
+            "ratio_loss_train_val": 0.8665299598207055,
+            "precision_train": 0.0,
+            "precision_test": 0.0,
+            "recall_train": 0.0,
+            "recall_test": 0.0,
+            "f1_train": 0.0,
+            "f1_test": 0.0,
+            "confusion_matrix_train": {
+                "TP": 0,
+                "TN": 331,
+                "FP": 0,
+                "FN": 309
+            },
+            "confusion_matrix_test": {
+                "TP": 0,
+                "TN": 69,
+                "FP": 0,
+                "FN": 91
+            }
+        }
+    }
+]

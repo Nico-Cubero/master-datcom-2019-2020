@@ -1,0 +1,87 @@
+[
+    {
+        "kernel_type": 0,
+        "Cvalue": 0.01,
+        "resultados": {
+            "CCR": 0.43125,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 69.0,
+                "FN": 0.0,
+                "FP": 91.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.6645441055297852
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 0.5,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 69.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 91.0
+            }
+        },
+        "tiempo_train": 0.25556254386901855
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 0.1,
+        "resultados": {
+            "CCR": 0.99375,
+            "precission": 0.9891304347826086,
+            "recall": 1.0,
+            "ROC": 0.9927536231884059,
+            "confussion_matrix": {
+                "TN": 68.0,
+                "FN": 1.0,
+                "FP": 0.0,
+                "TP": 91.0
+            }
+        },
+        "tiempo_train": 0.4945249557495117
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 1,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 69.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 91.0
+            }
+        },
+        "tiempo_train": 0.20464324951171875
+    },
+    {
+        "kernel_type": 0,
+        "Cvalue": 2,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 69.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 91.0
+            }
+        },
+        "tiempo_train": 0.18585562705993652
+    }
+]

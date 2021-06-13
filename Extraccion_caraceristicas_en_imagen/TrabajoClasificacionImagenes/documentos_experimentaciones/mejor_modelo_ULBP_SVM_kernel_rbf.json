@@ -1,0 +1,5 @@
+{
+	"kernel_type": "SVM_RBF",
+	"Cvalue": 5,
+	"gamma": 0.5
+}

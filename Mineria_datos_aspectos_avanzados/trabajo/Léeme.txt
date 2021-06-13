@@ -1,0 +1,48 @@
+---------Ejecución de la práctica------------------------------
+
+El script recrea resultados de pruebas de diferentes redes que se han ejecutado en el proyecto
+
+---------Entorno de ejecución----------------------------------
+
+Python 3.6.9
+Tensorflow 2.1 con GPU
+Keras 2.2
+
+
+---------Restricciones de ejecución----------------------------
+
+Los archivos de imágenes se deben encontrar en la carpeta raíz del scrip de forma que:
+/train/train/subcarpetas/*png
+/validation/validation/subcarpetas/*png
+
+Se creó la carpeta de validación adicional con la misma estructura que train pra evaluar internamente los scores
+
+
+----------Archivos---------------------------------------------
+
+*Ejecutables:
+	script2.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 2a versión.
+	script3.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 3a versión.
+	script4.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 4a versión.
+	script5.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 5a versión.
+	script6.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 6a versión.
+	script7.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 7a versión.
+	script8.py-> Script de entrenamiento, test de red neuronal profunda y salvado de modelo, 8a versión.
+	script_mejor_arquitectura.py-> Script de entrenamiento con la mejor arquitectura, última versión.
+
+*Dependencias:
+	utils.py -> Utilidades de apoyo usadas por los scripts ejecutables
+	mean_f1_score_evaluator.py -> Implementación de la Callback MeanF1Score_Evaluator que permite evaluar la métrica Mean F1 Score sobre diferentes conjuntos de datos
+	models.py -> Definición de las funciones que permiten construir cada una de las arquitecturas disponibles para los entrenamientos
+
+----------Ejecución---------------------------------------------
+
+Todos los scripts se ejecutan siguiendo el siguiente esquema:
+
+$ python3 <script_ejecutable>.py -d <documento JSON con parámetros de los experimentos> [-s]
+
+En la cabecera de cada script se encuentran indicaciones con los parámetros en el documento JSON admitidos por cada script para la ejecución de experimentos.
+
+Ejemplo:
+Para la ejecución del mejor modelo proceder de la siguiente forma:
+$ python3 script_mejor_arquitectura.py -d experimento83.json -s

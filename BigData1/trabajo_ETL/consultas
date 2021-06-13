@@ -1,0 +1,9 @@
+-- Contar el número de infectados registrados en cada ciudad
+SELECT  city, province, COUNT(ID) AS n_infectados FROM Covid19_Patients
+			GROUP BY province, city ORDER BY n_infectados DESC;
+
+-- Contar el número de pacientes que aún no han conseguido recuperarse
+--			o han fallecido y realizar el agrupamiento por edad y por sexo
+SELECT sex, age, COUNT(ID) AS not_recovered FROM Covid19_Patients
+			WHERE outcome!='discharged' OR outcome IS NULL
+			GROUP BY sex, age ORDER BY not_recovered DESC;

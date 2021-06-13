@@ -1,0 +1,427 @@
+---
+title: "Ejercicio guiado: Análisis y estudio de series temporales"
+output: html_notebook
+author: Nicolás Cubero
+---
+Nicolás Cubero
+Ejercicio guiado. Curso 2019-2020
+
+En este documento se llevará a cabo el análisis y creación de modelos predictivos de series temporales.
+
+Dada la información recopilada por una compañía aérea sobre el número de pasajeros que viajan entre los años 1949 y 1959, se pretende elaborar un modelo predictivo para estimar el número de pasajeros que viajarán en esta compañia aérea durante todos los meses de 1960.
+
+```{r}
+# Carga de librerías
+library('tseries')
+```
+# Análisis preliminar de la serie
+
+Procedemos a cargar los datos y los resultados que se deben de obtener:
+```{r}
+pas_data <- scan('pasajeros_1949_1959.dat')   # Datos a tratar
+pas_result <- scan('pasajeros_1960.predict')  # Resultados esperados en 1960
+
+# Cargamos los datos como una serie temporal
+pas_serie <- ts(pas_data, frequency = 12)
+```
+Mostramos la serie gráficamente:
+```{r}
+plot(pas_serie, xlab='Año transcurrido', ylab='Nº de pasajeros')
+```
+A simple vista, se observa que la serie presenta **tendencia ascendente** y **estacionalidad**.
+
+Considerando la **descomposición aditiva** como más conveniente para esta serie (dada la ausencia de variaciones en las fluctuaciones estacionales por las variaciones entorno a la tendencia frente al incremento del tiempo), se tratará de deducir la serie a su error residual deduciendo su tendencia y su estacionalidad.
+
+Se debe de eliminar, primeramente la tendencia del modelo y, una vez eliminada la tendencia identificar y eliminar su estacionalidad. No se contempla la eliminación, en primer lugar, de la estacionalidad debido a que la tendencia introduciría una componente no monótona que dificultaría su identidicación.
+
+Realizamos un primer análisis de la estacionalidad y tendencia de la serie con ayuda de la descomposición por defecto efectuada por la función *descompose* (basada en medias móviles), y mostramos la serie junto a sus componentes: **tendencia**, **estacionalidad** y **error** residual:
+```{r}
+dec_pas_serie <- decompose(pas_serie) # Descomposición de medias móviles
+
+print(dec_pas_serie)
+plot(dec_pas_serie, xlab='Tiempo')
+```
+Se aprecia una variabilidad en la varianza de la serie respecto al tiempo, que podría dificultar su tratamiento, por ello, para estabilizar la varianza, se propone realizar una transformación **logarítmica** de la serie:
+```{r}
+# Descomposición de la transformación logarítimica de la serie
+pas_serie.log <- log(pas_serie)
+dec_pas_serie.log <- decompose(pas_serie.log)
+
+print(dec_pas_serie.log)
+plot(dec_pas_serie.log, xlab='Tiempo')
+```
+
+Se observa que la varianza de la serie se ha estabilizado con esta medida de preprocesamiento.
+
+Analizamos más detalladamente la estacionalidad del modelo:
+
+```{r}
+print(dec_pas_serie.log$seasonal)
+plot(dec_pas_serie.log$seasonal, xlab='Tiempo', ylab='Estacionalidad en nº de pasajeros', main='Estacionalidad')
+```
+
+Se aprecia tanto en la gráfica como en el extracto, que **la estacionalidad de la serie se repite de forma anual**.
+
+# Estudio de modelos predictivos
+
+Trataremos de obtener una configuración para la elaboración de modelos predictivos válidos.
+Dividimos el conjunto de datos en dos subconjuntos de *train* y *test*, para lo cual, reservamos los meses del último año para el conjunto de *test*.
+
+```{r}
+# Obtener el conjunto de train
+train.pas_serie <- pas_serie.log[1:(length(pas_serie.log)-12)]
+train.time <- 1:length(train.pas_serie)
+
+# Obtener el conjunto de test
+test.pas_serie <- pas_serie.log[(length(pas_serie.log)-12+1):length(pas_serie.log)]
+test.time <- (train.time[length(train.time)]+1):(train.time[length(train.time)]+12)
+```
+Observamos de forma gráfica esta división en la serie original
+```{r}
+plot.ts(train.pas_serie, xlim=c(1, test.time[length(test.time)]),
+        xlab='Años transcurridos', ylab='Nº de pasajeros')
+lines(test.time, test.pas_serie, col='red')
+legend(x=1, y=6.2, legend = c('train', 'test'),
+              fill = c('black', 'red'))
+```
+
+Procedemos a tratar de estimar y remover de la serie original la tendencia de la serie.
+
+Sobre el error residual, se estudiará la **estacionaridad** de la serie y se elaborará un modelo predictivo sobre esta componente de error.
+
+A simple vista, la tendencia de la serie se asemeja a un crecimiento lineal ascendente, por lo que se tratará la estimación de esta tendencia mediante un **modelo regresivo lineal**.
+
+## Aprocimación lineal de la tendencia
+
+Tratamos de ajustar la tendencia de la serie mediante una regresión lineal:
+
+```{r}
+## Aproximación de la tendencia de la serie mediante regresión lineal
+param_lineal <- lm(train.pas_serie ~ train.time)
+
+tend.estimada.train <- param_lineal$coefficients[1]+train.time*param_lineal$coefficients[2]
+tend.estimada.test <- param_lineal$coefficients[1]+test.time*param_lineal$coefficients[2]
+```
+La estimación lineal se muestra en la siguiente figura junto a la serie original:
+```{r}
+plot.ts(train.pas_serie, xlim=c(1, test.time[length(test.time)]),
+        xlab='Años transcurridos', ylab='Nº de pasajeros')
+lines(test.time, test.pas_serie, col='red')
+lines(train.time, tend.estimada.train, col='blue')
+lines(test.time, tend.estimada.test, col='green')
+legend(x=1, y=6.2, legend = c('train - Valores reales', 'test - Valores reales',
+                              'train - Valores estimados', 'test - Valores estimados'),
+              fill = c('black', 'red', 'blue', 'green'))
+```
+Validamos esta estimación mediante el **test de Jarque Bera**, que comprueba si los residuos del modelo son **normales**, lo cual es un requisito necesario para admitir la validez de esta estimación.
+
+Ejecutamos este test tanto con el ajuste realizado para el conjunto de train como el de test
+```{r}
+# Aplicar test sobre train
+lineal.train.JB_test <- jarque.bera.test(param_lineal$residuals)
+# Aplicar test sobre test
+lineal.test.JB_test <- jarque.bera.test(test.pas_serie-tend.estimada.test)
+
+lineal.train.JB_test
+lineal.test.JB_test
+```
+En ambos casos, el *p-value* obtenido ofrece un valor superior a 0.005 (considerando una confianza del 95% al test), lo cual nos lleva a aceptar la hipótesis nula del test y asumir que los errores se distribuyen de forma normal tanto en la estimación realizada sobre el conjunto de train como la estimación del conjunto de test. Por consiguiente, aceptamos que la estimación por el modelo lineal calculado es válida.
+
+A continuación, comprobamos si las medias de los errores cometidos por el modelo regresivo sobre el conjunto de *train* y *test* son similares mediante el **test de Student**, lo cual nos va a permitir comprobar que el error cometido por el modelo es similar tanto en el conjunto de *train* como en el de *test*:
+
+```{r}
+t.stutent.lineal <- t.test(c(param_lineal$residuals, test.pas_serie-tend.estimada.test))
+t.stutent.lineal
+```
+Dado el *p-value* devuelto por el test, afirmamos que **no existen diferencias significativas** en las medias de los errores sobre el conjunto de *train* y *test*, en otras palabras, el error de predición cometido por el modelo es similar, tanto en los conjuntos de *train* como de *test*.
+
+Concluímos entonces, que la aproximación lineal, constituye una estimación válida de la tendencia tanto en la serie de *train* como la de *test* y procedemos a eliminarla de la serie:
+
+```{r}
+# Eliminar la tendencia estimada lineal
+train.pas_serie.sin_tend.lin <- train.pas_serie - tend.estimada.train
+test.pas_serie.sin_tend.lin <- test.pas_serie - tend.estimada.test
+
+# Representación gráfica de la tendencia
+plot.ts(train.pas_serie.sin_tend.lin, xlim=c(1,
+                                test.time[length(test.pas_serie.sin_tend.lin)]),
+        xlab='Años transcurridos', ylab='Serie sin tendencia')
+lines(test.time, test.pas_serie.sin_tend.lin, col='red')
+```
+
+Procedemos a estudiar la **estacionalidad** de la serie sobre el conjunto de *train*.
+En el análisis preliminar, se observó que la serie presenta una estacionalidad anual, es decir, una estacionalidad que se repite cada 12 meses.
+
+Determinamos la estacionalidad mediante el cómputo de las medias para uno de los instantes de tiempo sobre todos los periodos (operación implementada por defecto en la función *decompose*).
+
+```{r}
+# Estacionalidad de la serie de train
+est.train.pas_serie <- dec_pas_serie.log$seasonal[1:12]
+
+# Restamos las estacionalidad a las series de train y test
+aux <- rep(est.train.pas_serie, length(train.pas_serie)/length(est.train.pas_serie))
+train.pas_serie.sin_tend_est.lin <- train.pas_serie.sin_tend.lin - aux
+
+test.pas_serie.sin_tend_est.lin <- test.pas_serie.sin_tend.lin - est.train.pas_serie
+```
+
+La serie completa (train y test) sin tendencia ni estacionalidad (únicamente con el error residual) quedan de la siguiente forma:
+
+```{r}
+# Representación gráfica de la tendencia
+plot.ts(train.pas_serie.sin_tend_est.lin, xlim=c(1,
+                                test.time[length(test.pas_serie.sin_tend_est.lin)]),
+        xlab='Años transcurridos', ylab='Serie sin tendencia ni estacionalidad')
+lines(test.time, test.pas_serie.sin_tend_est.lin, col='red')
+```
+
+De este modo, hemos obtenido el error de la serie.
+
+Procedemos a comprobar que la serie es **estacionaria** a lo largo del tiempo, es decir, que su media no varía.
+Se requiere la **estacionaridad**, para garantizar la independencia de la serie respecto al momento en el que fue capturada.
+
+Aplicamos el **Test de Dickie-Furer** (test ADF) aumentado con una confianza del 95 % para comprobar que la media de la serie sin tendencia ni estacionalidad no varía con el tiempo.
+
+```{r}
+# Realizar test ADF
+adf.train.pas_serie <- adf.test(train.pas_serie.sin_tend_est.lin)
+adf.train.pas_serie
+```
+El *p-value* devuelto por el test no nos permite rechazar la hipótesis nula para afirmar la estacionaridad de la serie, lo cual nos obliga a aplicar algún método para convertir la serie en estacionaria.
+
+Realizamos una **diferenciación** de la serie para tratar de estabilizar la media a lo largo del tiempo y lograr de este modo, la estacionaridad de la serie:
+
+```{r}
+train.pas_serie.sin_tend_est_diff.lin <- diff(train.pas_serie.sin_tend_est.lin)
+test.pas_serie.sin_tend_est_diff.lin <- diff(test.pas_serie.sin_tend_est.lin)
+
+# Mostrar gráficamente la serie
+plot.ts(train.pas_serie.sin_tend_est_diff.lin, xlim=c(1,
+                          test.time[length(test.pas_serie.sin_tend_est_diff.lin)]),
+        xlab='Años transcurridos', ylab='Serie diferenciada')
+lines(test.time[2:length(test.time)], test.pas_serie.sin_tend_est_diff.lin, col='red')
+```
+
+Se vuelve a aplicar el test ADF:
+
+```{r}
+# Realizar test ADF
+adf.train.pas_serie <- adf.test(train.pas_serie.sin_tend_est_diff.lin)
+adf.test.pas_serie <- adf.test(test.pas_serie.sin_tend_est_diff.lin)
+
+adf.train.pas_serie
+adf.test.pas_serie
+```
+
+Con una confianza del 95%, el test establece que la serie sobre el conjunto de *train* es estacionaria, pero para la serie sobre el conjunto de *test*, no se hace  posible afirmar la estacionaridad.
+
+No obstante, dado que el modelo se costruirá en base a los datos de *train*, que satisfacen esta condición, se espera que este modelo pueda inferir correctamente sobre el conjunto de test, lo cual será validado posteriormente.
+
+Una vez garantizada la estacionaridad de la serie sobre conjunto de *train*, la analizamos con ayuda de las gráficas de autocorrelación (ACF) y autocorrelación parcial (PACF) para determinar los parámetros más idóneos del modelo:
+
+```{r}
+acf(train.pas_serie.sin_tend_est_diff.lin)
+pacf(train.pas_serie.sin_tend_est_diff.lin)
+```
+
+La gráfica ACF no nos muestra ningún indicio de estacionaridad (denscenso rápido hacia 0 conforme aumenta el *Lag*), por su parte, la gráfica PACF, nos lleva a sugerir un modelo autorregresivo de orden 4.
+
+Con todo ello, y, unido a la necesidad de diferenciar en 1 unidad la serie para garantizar su estacionaridad, proponemos un **modelo ARIMA** configurado con los siguientes parámetros:
+
+- p: Orden autorregresivo = 4.
+- d: Grado de diferencias = 1.
+- q: Orden de medias móviles = 0.
+
+```{r}
+# Ajustamos el modelo
+modelo.arima <- arima(train.pas_serie.sin_tend_est.lin, order = c(4,1,0))
+train.pred <- train.pas_serie.sin_tend_est.lin  + modelo.arima$residuals
+
+# Predecimos con el modelo los 12 meses del conjunto de test
+arima.pred <- predict(modelo.arima, n.ahead = 12)
+test.pred <- arima.pred$pred
+
+# Evaluamos el error MSE cometido tanto en train como en test
+mse.arima.train <- sum((modelo.arima$residuals)^2)
+mse.arima.test <- sum((test.pred-test.pas_serie.sin_tend_est.lin)^2)
+
+cat('Error SSE cometido sobre el conjunto de train: ', mse.arima.train, fill=T)
+cat('Error SSE cometido sobre el conjunto de test: ', mse.arima.test, fill=T)
+```
+
+Las series predichas se muestran en la siguiente figura junto a las series originales:
+
+```{r}
+plot.ts(train.pas_serie.sin_tend_est.lin, xlim=c(1, test.time[length(test.time)]),
+        xlab='Años transcurridos', ylab='Serie sin tendencia ni estacionalidad')
+lines(test.time, test.pas_serie.sin_tend_est.lin, col='red')
+lines(train.time, train.pred, col='blue')
+lines(test.time, test.pred, col='green')
+```
+
+Observamos que la predicción realizada sobre el conjunto de test no se asemeja mucho a los valores esperados.
+
+Observando la gráfica ACF y la gŕafica PACF sobre el conjunto de *train*, para los *lags* sucesivos al instante actual, se observa que el grado de autocorrelación entre estos *lags* y el instante actual es próximo a 0.
+La razón a este hecho se explicaría por la presencia de una gran componente de ruido blanco en la serie y que explicaría esta diferencia entre la estimación y los valores reales en el conjunto de *test*, no obstante, se requiere reconstruir la serie con sus componentes de tendencia y estacionalidad para apreciar la predición real.
+
+Validamos el modelo ARIMA comprobando que el error residual cometido por el mismo se distribuye normalmente. Para tal fin, nos basaremos en los **test de Box-Pierce**, nuevamente el **test de Jarque Bera** y el **test de Shapiro-Wilk**.
+
+```{r}
+# Test de Box-Pierce
+boxtest.arima <- Box.test(modelo.arima$residuals)
+boxtest.arima
+
+# Test de Jarque bera
+jb.arima <- jarque.bera.test(modelo.arima$residuals)
+jb.arima
+
+# Test de Shapiro-Wilk
+shap_wilk.arima <- shapiro.test(modelo.arima$residuals)
+shap_wilk.arima
+```
+Considerando una confianza del 95 %, para todos los tests, obtenemos un *p-value* superior a 0.05 que nos lleva a aceptar la hipótesis nula y afirmar la normalidad de los errores residuales, lo cual nos garantiza la validez del modelo tratado.
+
+```{r}
+# Representamos la distribución de los errores
+hist(modelo.arima$residuals, prob=T, col='firebrick1',
+     main = 'Histograma de residuos del modelo ARIMA',
+     border='white', xlab = 'Residuos', ylab='Densidad')
+lines(density(modelo.arima$residuals), col='gray37')
+```
+
+Gráficamente, podemos confirmar que la distribución de los residuos se asemeja en gran medida a la distribución Normal.
+
+Por último, reconstruímos la predición incorporándole la estacionalidad y tendencia eliminadas de la serie durante la fase de generación de los modelos ARIMA y la mostramos gráficamente junto a los valores reales:
+```{r}
+# Reconstruir la predición añadiendo la estacionalidad y la tendencia y
+# deshaciendo el logaritmo
+train.pred.rec <- exp(train.pred + aux + tend.estimada.train)
+test.pred.rec <- exp(test.pred + est.train.pas_serie +tend.estimada.test)
+
+# Mostrar la predición reconstruída junto a los valores reales
+plot.ts(pas_data, xlab='Años transcurridos', ylab='Número de pasajeros')
+lines(train.time, train.pred.rec, col='blue')
+lines(test.time, test.pred.rec, col='green')
+```
+
+Se observa ahora que la predición realizada se asemeja mucho a la serie real tanto en el conjunto de *train* como de *test*.
+
+# Predición del número de pasajeros en  1960.
+
+Confirmada la eficiencia del anterior modelo ARIMA, se elaborará un modelo de predicción con una configuración similar al estudiado usando todo el conjunto de datos.
+
+Para facilitar este proceso, implementamos una función que reciba la serie original junto a todos los parámetros requeridos para la elaboración del modelo ARIMA y que devuelva la predición.
+
+La función recibe la serie a partir de la cual se generará el modelo predictivo y a parir de la cual, se realizará la predición.
+
+Se realiza una transformación logarítmica de los datos para eliminar la variabilidad de la varianza y, seguidamente, tomando el modelo de estimación de la tendencia propuesto y pasado como parámetro, se estima la tendencia de la serie y se deduce a la misma.
+
+La función, tomando el periodo de estacionalidad determiando por el usuario y el *offset* de la misma (en este ejemplo no hay *offset*, por lo que es igual a 0),
+extrae la estacionalidad de la serie mediante el método implementado por defecto en la función *decompose* y se la resta al resultado de restar a la serie original la tendencia.
+
+Acto seguido, la función toma el error residual restante y elabora un modelo ARIMA con los parámetros determinados por el usuario.
+
+Por último, la función predice la tendencia correspondiente al intervalo de tiempo a predecir y suma a la predición realizada, tanto la estacionalidad determinada para la serie original como la tendencia predicha y deshace la transformación logarítmica exponenciendo el resultado de esta suma.
+
+```{r}
+predict.arima.model <- function(serie, serie_freq, tend_model, seas_period, arima_parameters, n.ahead, seas_offset=0) {
+  
+  # Función para la predición a partir de una serie temporal mediante
+  # un modelo ARIMA.
+  #
+  # Recibe:
+  # - serie: Serie temporal a partir de la cual se elaborará el modelo
+  # - serie_freq: Frecuencia del modelo
+  # - tend_model: Modelo de regresión para la tendencia de la serie
+  # - seas_period: Periodo de la serie en el que se comprende la estacionalidad
+  # - arima_parameters: Vector numérico que recoge los 3 parámetros del modelo ARIMA
+  # - n.ahead: Número de predicciones a realizar
+  # - seas_offset: Offset a considerar en la definición del periodo de estacionalidad
+  
+  
+  serie.log <- log(serie) # Eliminar variabilidad en la varianza
+  serie.ts <- ts(serie.log, frequency = serie_freq)
+  
+  # Obtener la descomposición de la función decompose
+  serie.dec <- decompose(serie.ts)
+  serie.time <- 1:length(serie.ts)
+  
+  # Eliminar tendencia de la serie
+  tend.serie <- tend_model$coefficients[1]+serie.time*tend_model$coefficients[2]
+  serie.ts.sin_tend <- serie.ts - tend.serie
+  
+  # Eliminar estacionalidad de la serie
+  est.serie <- serie.dec$seasonal[(1:seas_period) + seas_offset]
+  serie.ts.sin_tend_est <- serie.ts.sin_tend - rep(est.serie, length(serie.time)/length(est.serie))
+  
+  # Elaborar modelo ARIMA
+  modelo <- arima(serie.ts.sin_tend_est, arima_parameters)
+  
+  # Realizar predicción y añadir estacionalidad y tendencia
+  pred <- predict(modelo, n.ahead = n.ahead)
+  pred.time <- (length(serie.time)+1):(length(serie.time)+n.ahead)
+  
+  # Determinar el número de repeticiones de la estacionalidad
+  # completas o parciales para añadir a la predicción
+  est.pred = NA
+  if (n.ahead <= length(est.serie)) {
+        est.pred <- est.serie[1:n.ahead]
+  } else {
+        est.pred <-rep(est.serie, length(n.ahead)%/%length(est.serie))
+        
+        # Computar estacionalidad parcial y añadir
+        rest <- length(n.ahead)%%length(est.serie)
+        
+        if (rest > 0) {
+          est.pred <- c(est.pred, est.serie[1:rest])
+        }
+  }
+
+  # Estimar tendencia de la predición
+  tend.pred <- tend_model$coefficients[1]+pred.time*tend_model$coefficients[2]
+
+  # Añadir la estacionalidad y la tendencia y deshacer el cambio logarítmico
+  pred.rec <- exp(pred$pred + est.pred + tend.pred)
+  
+  return(pred.rec)
+}
+```
+
+Con la ayuda de esta función, se predice en los 12 meses de 1960
+
+```{r}
+serie.ts <- pas_data
+serie_freq <- 12
+serie.time <- 1:length(pas_data)
+tend_model <- lm(pas_data ~ serie.time)
+seas_period <- 12
+arima_parameters <- c(4,1,0)
+n.ahead <- 12
+
+pred <- predict.arima.model(serie.ts, serie_freq, tend_model, seas_period,
+                            arima_parameters, n.ahead)
+
+# Mostrar la predición y los valores reales
+cat('Predición realizada: ', fill=T)
+print(pred)
+
+pas_result.serie <- ts(pas_result, frequency = 12)
+cat('Valores reales: ', fill=T)
+print(pas_result.serie)
+```
+
+Representando ambas prediciones de forma gráfica:
+```{r}
+plot.ts(pas_result, main = 'Pasajeros en 1960', xlab='Mes', ylab='Nº pasajeros')
+lines(1:length(pred), pred, col='deepskyblue3')
+legend(x=1, y=590, legend = c('Valores reales', 'Valores predichos'),
+              fill = c('black', 'deepskyblue3'))
+```
+Observamos que, aunque existen diferencias entre los resultados esperados y la predicción realizada, la serie predicha se asemeja en gran medida a la serie real.
+
+Calculamos el error SAE (Sum of Absolute Errors) cometido:
+```{r}
+# Calcular error SAE
+error.sae <- sum(abs(pas_result-pred))
+cat('Error SAE cometido por la predición: ', error.sae, fill=T)
+```

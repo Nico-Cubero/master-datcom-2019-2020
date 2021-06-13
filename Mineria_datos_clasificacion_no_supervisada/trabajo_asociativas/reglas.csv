@@ -1,0 +1,68 @@
+"rules","support","confidence","lift","count","conviction","confirmedConfidence"
+"39","{age=Adult,thal=Reversable defect} => {sex=male}",0.248148148148148,0.943661971830986,1.39228815516047,67,5.71944444444444,0.887323943661972
+"41","{age=Adult,heart dissease} => {sex=male}",0.240740740740741,0.902777777777778,1.33196721311475,65,3.31428571428572,0.805555555555556
+"37","{chest pain type=asymptomatic,thal=Reversable defect} => {heart dissease}",0.233333333333333,0.9,2.025,63,5.55555555555556,0.8
+"26","{oldpeak=[0,0.1),thal=Normal} => {slope of the peak exercise ST segment=Upsloping}",0.222222222222222,0.909090909090909,1.88811188811189,60,5.7037037037037,0.818181818181818
+"35","{exercise induced angina,heart dissease} => {chest pain type=asymptomatic}",0.222222222222222,0.909090909090909,1.90274841437632,60,5.74444444444444,0.818181818181818
+"33","{sex=female,number of major vessels=0} => {thal=Normal}",0.2,0.915254237288136,1.62578055307761,54,5.15703703703704,0.830508474576271
+"16","{maximum heart rate achieved=[166,202],number of major vessels=0} => {age=Adult}",0.188888888888889,0.944444444444444,1.37096774193548,51,5.6,0.888888888888889
+"138","{sex=male,slope of the peak exercise ST segment=Upsloping,number of major vessels=0} => {age=Adult}",0.188888888888889,0.910714285714286,1.32200460829493,51,3.48444444444444,0.821428571428571
+"27","{sex=male,oldpeak=[0,0.1)} => {slope of the peak exercise ST segment=Upsloping}",0.181481481481481,0.907407407407407,1.88461538461538,49,5.6,0.814814814814815
+"28","{sex=male,oldpeak=[0,0.1)} => {age=Adult}",0.181481481481481,0.907407407407407,1.31720430107527,49,3.36,0.814814814814815
+"38","{resting electrocardiographic results=Normal,thal=Reversable defect} => {sex=male}",0.174074074074074,0.92156862745098,1.35969141755063,47,4.10833333333333,0.843137254901961
+"15","{maximum heart rate achieved=[166,202],slope of the peak exercise ST segment=Upsloping} => {age=Adult}",0.17037037037037,0.901960784313726,1.30929791271347,46,3.17333333333333,0.803921568627451
+"17","{sex=male,maximum heart rate achieved=[166,202]} => {age=Adult}",0.17037037037037,0.958333333333333,1.39112903225806,46,7.46666666666669,0.916666666666667
+"21","{maximum heart rate achieved=[71,133),heart dissease} => {sex=male}",0.17037037037037,0.92,1.35737704918033,46,4.02777777777778,0.84
+"34","{age=Adult,sex=female} => {thal=Normal}",0.17037037037037,0.92,1.63421052631579,46,5.46296296296296,0.84
+"137","{sex=male,slope of the peak exercise ST segment=Upsloping,thal=Normal} => {age=Adult}",0.166666666666667,0.9,1.30645161290323,45,3.11111111111111,0.8
+"31","{sex=female,slope of the peak exercise ST segment=Upsloping} => {thal=Normal}",0.162962962962963,0.977777777777778,1.73684210526316,44,19.6666666666665,0.955555555555555
+"32","{sex=female,resting electrocardiographic results=Normal} => {thal=Normal}",0.148148148148148,0.909090909090909,1.61483253588517,40,4.80740740740741,0.818181818181818
+"18","{maximum heart rate achieved=[71,133),exercise induced angina} => {sex=male}",0.144444444444444,0.951219512195122,1.40343862455018,39,6.60555555555553,0.902439024390244
+"123","{sex=male,chest pain type=asymptomatic,oldpeak=[1.4,6.2]} => {heart dissease}",0.144444444444444,0.906976744186046,2.0406976744186,39,5.97222222222221,0.813953488372093
+"8","{number of major vessels=1,heart dissease} => {sex=male}",0.137037037037037,0.973684210526316,1.43658326143227,37,12.2444444444444,0.947368421052632
+"25","{resting electrocardiographic results=left ventricular hypertrophy,oldpeak=[0,0.1)} => {slope of the peak exercise ST segment=Upsloping}",0.133333333333333,0.9,1.86923076923077,36,5.18518518518519,0.8
+"116","{sex=male,serum cholestoral=Dangerous level,exercise induced angina} => {heart dissease}",0.133333333333333,0.9,2.025,36,5.55555555555556,0.8
+"120","{chest pain type=asymptomatic,oldpeak=[1.4,6.2],slope of the peak exercise ST segment=Flat} => {heart dissease}",0.133333333333333,0.9,2.025,36,5.55555555555556,0.8
+"14","{maximum heart rate achieved=[166,202],oldpeak=[0,0.1)} => {slope of the peak exercise ST segment=Upsloping}",0.12962962962963,0.945945945945946,1.96465696465696,35,9.59259259259259,0.891891891891892
+"3","{resting blood pressure=Hypertension-stage1,number of major vessels=0} => {age=Adult}",0.122222222222222,0.942857142857143,1.36866359447005,33,5.44444444444444,0.885714285714286
+"22","{age=Adult,maximum heart rate achieved=[71,133)} => {sex=male}",0.122222222222222,0.916666666666667,1.35245901639344,33,3.86666666666667,0.833333333333333
+"36","{slope of the peak exercise ST segment=Upsloping,thal=Reversable defect} => {sex=male}",0.122222222222222,0.970588235294118,1.43201542912247,33,10.9555555555556,0.941176470588235
+"104","{exercise induced angina,oldpeak=[1.4,6.2],thal=Reversable defect} => {heart dissease}",0.122222222222222,0.970588235294118,2.18382352941176,33,18.8888888888889,0.941176470588235
+"117","{oldpeak=[1.4,6.2],slope of the peak exercise ST segment=Flat,thal=Reversable defect} => {heart dissease}",0.122222222222222,0.916666666666667,2.0625,33,6.66666666666667,0.833333333333333
+"122","{chest pain type=asymptomatic,serum cholestoral=Dangerous level,oldpeak=[1.4,6.2]} => {heart dissease}",0.118518518518519,0.941176470588235,2.11764705882353,32,9.44444444444441,0.88235294117647
+"2","{resting blood pressure=Normal,number of major vessels=0} => {age=Adult}",0.114814814814815,0.911764705882353,1.32352941176471,31,3.52592592592592,0.823529411764706
+"12","{resting blood pressure=Elevated,heart dissease} => {sex=male}",0.114814814814815,1,1.47540983606557,31,NA,1
+"19","{maximum heart rate achieved=[71,133),thal=Reversable defect} => {heart dissease}",0.114814814814815,0.939393939393939,2.11363636363636,31,9.16666666666667,0.878787878787879
+"20","{maximum heart rate achieved=[71,133),thal=Reversable defect} => {sex=male}",0.114814814814815,0.939393939393939,1.38599105812221,31,5.31666666666667,0.878787878787879
+"24","{sex=female,oldpeak=[0,0.1)} => {thal=Normal}",0.114814814814815,1,1.77631578947368,31,NA,1
+"105","{exercise induced angina,oldpeak=[1.4,6.2],thal=Reversable defect} => {sex=male}",0.114814814814815,0.911764705882353,1.34522661523626,31,3.65185185185184,0.823529411764706
+"110","{exercise induced angina,slope of the peak exercise ST segment=Flat,thal=Reversable defect} => {heart dissease}",0.114814814814815,0.939393939393939,2.11363636363636,31,9.16666666666667,0.878787878787879
+"121","{chest pain type=asymptomatic,resting electrocardiographic results=left ventricular hypertrophy,oldpeak=[1.4,6.2]} => {heart dissease}",0.114814814814815,0.939393939393939,2.11363636363636,31,9.16666666666667,0.878787878787879
+"1","{chest pain type=atypical angina,number of major vessels=0} => {age=Adult}",0.111111111111111,0.9375,1.36088709677419,30,4.97777777777778,0.875
+"11","{resting blood pressure=Elevated,thal=Reversable defect} => {sex=male}",0.111111111111111,1,1.47540983606557,30,NA,1
+"98","{serum cholestoral=High level,resting electrocardiographic results=Normal,number of major vessels=0} => {age=Adult}",0.111111111111111,0.909090909090909,1.31964809384164,30,3.42222222222222,0.818181818181818
+"106","{exercise induced angina,oldpeak=[1.4,6.2],slope of the peak exercise ST segment=Flat} => {heart dissease}",0.111111111111111,0.909090909090909,2.04545454545455,30,6.11111111111111,0.818181818181818
+"113","{serum cholestoral=Dangerous level,exercise induced angina,thal=Reversable defect} => {heart dissease}",0.111111111111111,0.9375,2.109375,30,8.8888888888889,0.875
+"188","{sex=male,chest pain type=asymptomatic,resting electrocardiographic results=left ventricular hypertrophy,slope of the peak exercise ST segment=Flat} => {heart dissease}",0.111111111111111,0.9375,2.109375,30,8.8888888888889,0.875
+"9","{chest pain type=asymptomatic,number of major vessels=1} => {sex=male}",0.107407407407407,0.966666666666667,1.42622950819672,29,9.66666666666663,0.933333333333333
+"23","{sex=female,chest pain type=non-anginal pain} => {thal=Normal}",0.107407407407407,0.90625,1.60978618421053,29,4.66172839506173,0.8125
+"29","{serum cholestoral=High level,thal=Reversable defect} => {sex=male}",0.107407407407407,0.935483870967742,1.3802221047065,29,4.99444444444444,0.870967741935484
+"30","{serum cholestoral=High level,heart dissease} => {sex=male}",0.107407407407407,0.935483870967742,1.3802221047065,29,4.99444444444444,0.870967741935484
+"40","{slope of the peak exercise ST segment=Upsloping,heart dissease} => {sex=male}",0.107407407407407,0.90625,1.33709016393443,29,3.43703703703704,0.8125
+"56","{maximum heart rate achieved=[71,133),exercise induced angina,slope of the peak exercise ST segment=Flat} => {heart dissease}",0.107407407407407,0.935483870967742,2.10483870967742,29,8.6111111111111,0.870967741935484
+"6","{slope of the peak exercise ST segment=Flat,number of major vessels=1} => {sex=male}",0.103703703703704,0.933333333333333,1.37704918032787,28,4.83333333333333,0.866666666666667
+"7","{chest pain type=asymptomatic,number of major vessels=1} => {heart dissease}",0.103703703703704,0.933333333333333,2.1,28,8.33333333333333,0.866666666666667
+"10","{maximum heart rate achieved=[154,166),oldpeak=[0,0.1)} => {slope of the peak exercise ST segment=Upsloping}",0.103703703703704,0.96551724137931,2.0053050397878,28,15.0370370370371,0.931034482758621
+"57","{maximum heart rate achieved=[71,133),exercise induced angina,slope of the peak exercise ST segment=Flat} => {chest pain type=asymptomatic}",0.103703703703704,0.903225806451613,1.89047261815454,28,5.3962962962963,0.806451612903226
+"189","{sex=male,chest pain type=asymptomatic,serum cholestoral=Dangerous level,slope of the peak exercise ST segment=Flat} => {heart dissease}",0.103703703703704,0.903225806451613,2.03225806451613,28,5.74074074074074,0.806451612903226
+"4","{number of major vessels=1,thal=Reversable defect} => {sex=male}",0.1,0.964285714285714,1.42271662763466,27,9.02222222222219,0.928571428571428
+"5","{slope of the peak exercise ST segment=Flat,number of major vessels=1} => {heart dissease}",0.1,0.9,2.025,27,5.55555555555555,0.8
+"13","{chest pain type=asymptomatic,resting blood pressure=Elevated} => {sex=male}",0.1,0.9,1.32786885245902,27,3.22222222222222,0.8
+"74","{age=Adult,maximum heart rate achieved=[71,133),slope of the peak exercise ST segment=Flat} => {chest pain type=asymptomatic}",0.1,0.964285714285714,2.01827242524917,27,14.6222222222222,0.928571428571428
+"77","{age=Adult,maximum heart rate achieved=[71,133),heart dissease} => {chest pain type=asymptomatic}",0.1,0.931034482758621,1.94867682437851,27,7.57222222222222,0.862068965517241
+"85","{chest pain type=asymptomatic,resting electrocardiographic results=left ventricular hypertrophy,maximum heart rate achieved=[71,133)} => {sex=male}",0.1,0.9,1.32786885245902,27,3.22222222222222,0.8
+"87","{chest pain type=non-anginal pain,slope of the peak exercise ST segment=Upsloping,number of major vessels=0} => {thal=Normal}",0.1,0.9,1.59868421052632,27,4.37037037037037,0.8
+"92","{serum cholestoral=Dangerous level,oldpeak=[0,0.1),number of major vessels=0} => {slope of the peak exercise ST segment=Upsloping}",0.1,0.9,1.86923076923077,27,5.18518518518518,0.8
+"96","{serum cholestoral=Dangerous level,oldpeak=[0,0.1),number of major vessels=0} => {thal=Normal}",0.1,0.9,1.59868421052632,27,4.37037037037037,0.8
+"109","{serum cholestoral=Dangerous level,exercise induced angina,oldpeak=[1.4,6.2]} => {heart dissease}",0.1,1,2.25,27,NA,1
+"119","{serum cholestoral=Dangerous level,oldpeak=[1.4,6.2],thal=Reversable defect} => {heart dissease}",0.1,0.931034482758621,2.0948275862069,27,8.05555555555556,0.862068965517241

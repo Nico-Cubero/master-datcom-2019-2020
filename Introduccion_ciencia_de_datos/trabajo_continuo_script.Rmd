@@ -1,0 +1,1153 @@
+---
+title: "Regresión aplicado al dataset California"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+En este documento se tratará de aplicar y estudiar diversos métodos de regresión lineales sobre el *dataset* **California**.
+
+El *dataset* **California** evalúa el valor medio de cada bloque de viviendas en California (*MedianHouseValue*) en función de otros parámetros evaluados en cada uno de estos grupos de viviendas:
+
+- **Longitude**: Longitud geográfica del bloque de viviendas.
+- **Latitude**: Latitud geográfica del bloque de viviendas.
+- **HousingMedianAge**: Edad media de cada bloque de viviendas.
+- **TotalRooms**: Número total de habitaciones.
+- **TotalBedrooms**: Número total de dormitorios.
+- **Population**: Población total de cada grupo de viviendas.
+- **Households**: Número total de habitantes en cada bloque.
+- **MedianIncome**: Ingresos medio de los habitantes de cada bloque.
+
+Como se ha indicado anteriormente, la variable a predecir es **MedianHouseValue**, que representa el valor medio (se asume que en dolares) de cada bloque de viviendas.
+
+Los datos de este dataset fueron recopilados a partir del censo realizado en 1990 y han sido tomados del sitio web sci2s.ugr.es desde el siguiente [enlace](https://sci2s.ugr.es/keel/dataset.php?cod=83)
+---
+## Carga y análisis preliminar del dataset
+
+El *dataset* se haya escrito en formato **KEEL** y se procede a cargarlo de la siguiente forma:
+
+```{r}
+# Carga del dataset desde california.dat
+calif.data <- read.csv('california.dat', comment.char='@')
+
+# Asignación manual de los nombres de atributos
+names(calif.data) <- c("Longitude", "Latitude", "HousingMedianAge", "TotalRooms", "TotalBedrooms", "Population", "Households", "MedianIncome", "MedianHouseValue")
+
+```
+Se realiza un análisis preliminar del *dataset* obteniendo información sobre la estructura de sus columnas y mostrando las primeras 10 instancias:
+```{r}
+# Estructura del datset
+str(calif.data)
+
+# Primeras instancias
+head(calif.data, 10)
+```
+
+Se completa este análisis preliminar con la elaboración de un resumen estadístico básico y general de cada una de las columnas:
+
+```{r}
+res <- summary(calif.data)
+print(res)
+```
+
+---
+
+## Elaboración de modelos de regresión lineales simples
+
+Para la elaboración de modelos de regresión, se seguirá una metodología ascendente comenzando por la elaboración de modelos lineales simples que traten de explicar la variable dependiente, a partir de loc cuales, se estudiarán y elaborarán modelos progresivamente más complejos.
+
+En primer lugar, se analizará visualmente la relación entre **MedianHouseValue** y cada una del resto de variables, con el objetivo de identificar posibles relaciones entre las variables que se puedan ajustar a alguna de las funciones conocidas.
+
+Para visualizar las relaciones con más detalle, las gráficas no se organizarán en un mismo papel, sino en grupos separados. También se incluirán las representaciones gráficas de **MedianHouseValue** frente a **Longitude** y **Latitude**.
+
+```{r}
+# Función para representar la variable dependiente de una cualquiera
+temp <- calif.data
+#col <- c('red', 'blue', )
+plotY <- function(x,y) {
+  plot(temp[,y]~temp[,x], xlab=paste(names(temp)[x]," X",x,sep=""), ylab=names(temp)[y], col=rgb(0,0,0, alpha=0.3))
+}
+
+# MedianHouseValue frente a Latitude y Longitude
+par(mfrow=c(2,1))
+x <- sapply(1:2, plotY, dim(temp)[2])
+#x <- sapply(3:(dim(temp)[2]-1), plotY, dim(temp)[2])
+par(mfrow=c(1,1))
+```
+```{r}
+# MedianHouseValue frente a HousingMedianAge, TotalRooms y TotalBedrooms
+par(mfrow=c(3,1))
+x <- sapply(3:5, plotY, dim(temp)[2])
+#x <- sapply(3:(dim(temp)[2]-1), plotY, dim(temp)[2])
+par(mfrow=c(1,1))
+```
+```{r}
+# MedianHouseValue frente a Population, Housefolds y MedianIncome
+par(mfrow=c(3,1))
+x <- sapply(6:(dim(temp)[2]-1), plotY, dim(temp)[2])
+par(mfrow=c(1,1))
+```
+Se observa que en ninguna de las gráficas, las relaciones entre la variable dependiente y cada una del resto de variables **puedan ser ajustadas con una función lineal** ni con otras funciones conocidas.
+
+No obstante, se confeccionarán diversos modelos de regresión simples a partir de las cuales se estudiarán otros modelos más complejos que posibiliten un mejor ajuste.
+```{r}
+# Elaboración de modelos lineales simples
+fitX1 <- lm(MedianHouseValue ~ Longitude, data=calif.data)
+fitX2 <- lm(MedianHouseValue ~ Latitude, data=calif.data)
+fitX3 <- lm(MedianHouseValue ~ HousingMedianAge, data=calif.data)
+fitX4 <- lm(MedianHouseValue ~ TotalRooms, data=calif.data)
+fitX5 <- lm(MedianHouseValue ~ TotalBedrooms, data=calif.data)
+fitX6 <- lm(MedianHouseValue ~ Population, data=calif.data)
+fitX7 <- lm(MedianHouseValue ~ Households, data=calif.data)
+fitX8 <- lm(MedianHouseValue ~ MedianIncome, data=calif.data)
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de Longitude
+summary(fitX1)
+plot(MedianHouseValue ~ Longitude, data=calif.data)
+abline(fitX1,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **Longitude** proporciona los siguientes resultados:
+```
+
+Call:
+lm(formula = MedianHouseValue ~ Longitude, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-201387  -86464  -26344   56599  301453 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -109597.6    47897.1  -2.288   0.0221 *  
+Longitude     -2646.6      400.5  -6.608 3.99e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 115300 on 20637 degrees of freedom
+Multiple R-squared:  0.002111,	Adjusted R-squared:  0.002063 
+F-statistic: 43.66 on 1 and 20637 DF,  p-value: 3.993e-11
+
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de Latitude
+summary(fitX2)
+plot(MedianHouseValue ~ Latitude, data=calif.data)
+abline(fitX2,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **Latitude** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ Latitude, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-207120  -84026  -30049   57108  318679 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 484433.0    13284.6   36.47   <2e-16 ***
+Latitude     -7790.1      372.2  -20.93   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 114200 on 20637 degrees of freedom
+Multiple R-squared:  0.02079,	Adjusted R-squared:  0.02074 
+F-statistic: 438.1 on 1 and 20637 DF,  p-value: < 2.2e-16
+
+```
+
+```{r}
+# Ajuste lineal de MedianHouseValue en función de HousingMedianAge
+summary(fitX3)
+plot(MedianHouseValue ~ HousingMedianAge, data=calif.data)
+abline(fitX3,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **HousingMedianAge** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ HousingMedianAge, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-214479  -85039  -25833   58351  318941 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      179123.57    1985.54   90.21   <2e-16 ***
+HousingMedianAge    968.36      63.47   15.26   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 114800 on 20637 degrees of freedom
+Multiple R-squared:  0.01115,	Adjusted R-squared:  0.01111 
+F-statistic: 232.8 on 1 and 20637 DF,  p-value: < 2.2e-16
+
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de TotalRooms
+summary(fitX4)
+plot(MedianHouseValue ~ TotalRooms, data=calif.data)
+abline(fitX4,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **TotalRooms** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ TotalRooms, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-313528  -86440  -26697   55726  311793 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 1.882e+05  1.248e+03  150.71   <2e-16 ***
+TotalRooms  7.098e+00  3.649e-01   19.45   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 114400 on 20637 degrees of freedom
+Multiple R-squared:  0.018,	Adjusted R-squared:  0.01796 
+F-statistic: 378.4 on 1 and 20637 DF,  p-value: < 2.2e-16
+
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de TotalBedrooms
+summary(fitX5)
+plot(MedianHouseValue ~ TotalBedrooms, data=calif.data)
+abline(fitX5,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **TotalBedrooms** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ TotalBedrooms, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-214300  -87389  -27788   57332  300592 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   1.994e+05  1.301e+03 153.239  < 2e-16 ***
+TotalBedrooms 1.387e+01  1.905e+00   7.284 3.35e-13 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 115300 on 20637 degrees of freedom
+Multiple R-squared:  0.002564,	Adjusted R-squared:  0.002516 
+F-statistic: 53.06 on 1 and 20637 DF,  p-value: 3.354e-13
+
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de Population
+summary(fitX6)
+plot(MedianHouseValue ~ Population, data=calif.data)
+abline(fitX6,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **Population** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ Population, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-195391  -86889  -26883   58179  308217 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.104e+05  1.291e+03 163.006  < 2e-16 ***
+Population  -2.510e+00  7.091e-01  -3.539 0.000402 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 115400 on 20637 degrees of freedom
+Multiple R-squared:  0.0006067,	Adjusted R-squared:  0.0005582 
+F-statistic: 12.53 on 1 and 20637 DF,  p-value: 0.0004019
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de Households
+summary(fitX7)
+plot(MedianHouseValue ~ Households, data=calif.data)
+abline(fitX7,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **Households** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ Households, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-224837  -86861  -27949   56985  303059 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 1.969e+05  1.319e+03 149.313   <2e-16 ***
+Households  1.989e+01  2.097e+00   9.487   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 115200 on 20637 degrees of freedom
+Multiple R-squared:  0.004342,	Adjusted R-squared:  0.004294 
+F-statistic:    90 on 1 and 20637 DF,  p-value: < 2.2e-16
+```
+```{r}
+# Ajuste lineal de MedianHouseValue en función de MedianIncome
+summary(fitX8)
+plot(MedianHouseValue ~ MedianIncome, data=calif.data)
+abline(fitX8,col="red")
+```
+El ajuste lineal de **MedianHouseValue** en función de **MedianIncome** proporciona los siguientes resultados:
+```
+Call:
+lm(formula = MedianHouseValue ~ MedianIncome, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-540700  -55951  -16978   36979  434025 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   45083.4     1322.9   34.08   <2e-16 ***
+MedianIncome  41794.2      306.8  136.22   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  
+Residual standard error: 83740 on 20637 degrees of freedom
+Multiple R-squared:  0.4734,	Adjusted R-squared:  0.4734 
+F-statistic: 1.856e+04 on 1 and 20637 DF,  p-value: < 2.2e-16
+```
+
+Por lo general, se observa que todos los modelos lineales (a excepción del modelo lineal que considera a *MedianIncome* como variable dependiente) presente un *R-squared* ajustado cercano a 0, lo que lleva a asumir que, por sí mismas y de forma individual, no pueden explicar la variable dependiente **MedianHouseValue**.
+
+Para el caso de la variable *MedianIncome*, el valor de *R-squared* ajustado presenta un valor cercano a 0.5, lo que implica que, por si sola, esta variable puede explicar gran parte de la variable dependiente, aunque no se considera suficiente para la elaboración de un modelo de regresión. No obstante, este modelo lineal, se tomará como punto de partida en la elaboración de modelos más complejos.
+
+Los 5 modelos lineales simples que explican en mayor grado la variable dependiente son los siguientes:
+
+- *fitX8*, que involucraba la variable *MedianIncome*
+- *fitX2*, que involucraba la variable *Latitude* (pese a que por la naturaleza de esta variable no se esperaba relación alguna con la variable dependiente).
+- *fitX4*, que involucraba la variable *TotalRooms*.
+- *fitX3*, que involucraba la variable *HousingMedianAge*.
+- *fitX7*, que involucraba la variable *Households*.
+
+---
+## Elaboración de modelos múltiples.
+
+A continuación, se analizarán y elaborarán diversos modelos que consideren varias variables independientes para explicar la variable dependiente **MedianHouseValue**.
+
+Se seguirá un método descendente que partirá de un modelo lineal que considere todas las variables del dataset como variables independientes y, a partir del cual, se tratarán de obtener modelos progresivamente mejores eliminando variables y/o añadiendo términos no lineales.
+
+```{r}
+#cor(calif.data)
+# Elaboración de un modelo lineal múltiple con todas las variables
+fit.mul1 <- lm(MedianHouseValue ~ ., data=calif.data)
+
+summary(fit.mul1)
+```
+
+Del modelo obtenido se obtiene los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ ., data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-563016  -43593  -11324   30320  804281 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -3.594e+06  6.254e+04 -57.462  < 2e-16 ***
+Longitude        -4.282e+04  7.130e+02 -60.056  < 2e-16 ***
+Latitude         -4.258e+04  6.733e+02 -63.239  < 2e-16 ***
+HousingMedianAge  1.156e+03  4.317e+01  26.782  < 2e-16 ***
+TotalRooms       -8.196e+00  7.882e-01 -10.397  < 2e-16 ***
+TotalBedrooms     1.134e+02  6.902e+00  16.434  < 2e-16 ***
+Population       -3.855e+01  1.079e+00 -35.728  < 2e-16 ***
+Households        4.843e+01  7.516e+00   6.444 1.19e-10 ***
+MedianIncome      4.025e+04  3.351e+02 120.127  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69530 on 20630 degrees of freedom
+Multiple R-squared:  0.6371,	Adjusted R-squared:  0.637 
+F-statistic:  4528 on 8 and 20630 DF,  p-value: < 2.2e-16
+```
+
+Los valores *p-values* no facilitan la identificación de alguna variable de la cual se pudiera prescindir en el anterior modelo.
+
+Partiendo del anterior modelo lineal, se estudiarán otros modelos obtenidos de la eliminación de algunas variables del dataset, para lo cual, se decide comenzar por aquellas variables no involucradas en ninguno de los 5 mejores modelos lineales simples estudiados en el epígrafe anterior.
+
+Se elimina entonces la variable **Longitude**:
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin Longitude
+fit.mul2 <- lm(MedianHouseValue ~ .-Longitude, data=calif.data)
+summary(fit.mul2)
+```
+
+Se obtienen los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - Longitude, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-618280  -47767  -12233   33990  775468 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       1.247e+05  9.551e+03   13.06   <2e-16 ***
+Latitude         -4.639e+03  2.524e+02  -18.38   <2e-16 ***
+HousingMedianAge  1.875e+03  4.495e+01   41.72   <2e-16 ***
+TotalRooms       -1.696e+01  8.396e-01  -20.20   <2e-16 ***
+TotalBedrooms     8.689e+01  7.465e+00   11.64   <2e-16 ***
+Population       -3.880e+01  1.169e+00  -33.18   <2e-16 ***
+Households        1.331e+02  8.001e+00   16.63   <2e-16 ***
+MedianIncome      4.663e+04  3.444e+02  135.39   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 75360 on 20631 degrees of freedom
+Multiple R-squared:  0.5737,	Adjusted R-squared:  0.5735 
+F-statistic:  3966 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+Se observa que la eliminación de la variable **Longitude** ofrece un modelo con valor de *R-squared* ajustado más pésimo, por lo que se decide conservar esta variable y eliminar en su lugar la variable *Population*:
+```{r}
+# Elaboración de un modelo lineal múltiple sin Population
+fit.mul3 <- lm(MedianHouseValue ~ .-Population, data=calif.data)
+summary(fit.mul3)
+```
+Se obtienen los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - Population, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-587511  -45759  -13174   31325  473437 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -3.662e+06  6.441e+04  -56.84   <2e-16 ***
+Longitude        -4.292e+04  7.347e+02  -58.41   <2e-16 ***
+Latitude         -4.139e+04  6.929e+02  -59.73   <2e-16 ***
+HousingMedianAge  1.215e+03  4.445e+01   27.32   <2e-16 ***
+TotalRooms       -1.605e+01  7.800e-01  -20.58   <2e-16 ***
+TotalBedrooms     1.783e+02  6.861e+00   25.99   <2e-16 ***
+Households       -8.312e+01  6.751e+00  -12.31   <2e-16 ***
+MedianIncome      4.254e+04  3.389e+02  125.52   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 71650 on 20631 degrees of freedom
+Multiple R-squared:  0.6147,	Adjusted R-squared:  0.6145 
+F-statistic:  4701 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+
+La eliminación de la variable **Population** da lugar a un modelo lineal múltiple con un rendimiento algo inferior, por lo que no se considerará su desestimación. Se probará ahora la elaboración de otro modelo desestimando la variable **TotalBedrooms**
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin Population
+fit.mul4 <- lm(MedianHouseValue ~ .-TotalBedrooms, data=calif.data)
+summary(fit.mul4)
+```
+Se obtienen los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - TotalBedrooms, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-540491  -44500  -11761   30749  869970 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -3.506e+06  6.272e+04 -55.899  < 2e-16 ***
+Longitude        -4.207e+04  7.162e+02 -58.743  < 2e-16 ***
+Latitude         -4.229e+04  6.774e+02 -62.428  < 2e-16 ***
+HousingMedianAge  1.125e+03  4.341e+01  25.919  < 2e-16 ***
+TotalRooms       -1.784e+00  6.894e-01  -2.588  0.00965 ** 
+Population       -4.322e+01  1.048e+00 -41.248  < 2e-16 ***
+Households        1.495e+02  4.345e+00  34.414  < 2e-16 ***
+MedianIncome      3.835e+04  3.165e+02 121.158  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69980 on 20631 degrees of freedom
+Multiple R-squared:  0.6324,	Adjusted R-squared:  0.6322 
+F-statistic:  5070 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+
+El modelo resultante presenta un rendimiento inferior al modelo lineal que consideraba todas las variables del dataset como variables dependientes. Se desestima la eliminación de la variable **TotalBedrooms** y se decide probar eliminando alguna de las variables elegidas anteriormente en los 5 mejores ajustes lineales.
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin Households
+fit.mul5 <- lm(MedianHouseValue ~ .-Households, data=calif.data)
+summary(fit.mul5)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - Households, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-566289  -43500  -11341   30484  744913 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -3.673e+06  6.139e+04  -59.83   <2e-16 ***
+Longitude        -4.368e+04  7.010e+02  -62.31   <2e-16 ***
+Latitude         -4.326e+04  6.654e+02  -65.02   <2e-16 ***
+HousingMedianAge  1.165e+03  4.319e+01   26.98   <2e-16 ***
+TotalRooms       -8.453e+00  7.880e-01  -10.73   <2e-16 ***
+TotalBedrooms     1.498e+02  3.969e+00   37.76   <2e-16 ***
+Population       -3.515e+01  9.416e-01  -37.33   <2e-16 ***
+MedianIncome      4.042e+04  3.343e+02  120.91   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69600 on 20631 degrees of freedom
+Multiple R-squared:  0.6364,	Adjusted R-squared:  0.6363 
+F-statistic:  5158 on 7 and 20631 DF,  p-value: < 2.2e-16
+
+```
+
+El modelo resultante nuevamente presenta un rendimiento inferior al modelo lineal que consideraba todas las variables del dataset como variables dependientes. Se considerará ahora eliminar la variable *HousingMedianAge*.
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin HousingMedianAge
+fit.mul6 <- lm(MedianHouseValue ~ .-HousingMedianAge, data=calif.data)
+summary(fit.mul6)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - HousingMedianAge, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-532024  -43686  -12002   30044  859264 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   -4.015e+06  6.157e+04 -65.204  < 2e-16 ***
+Longitude     -4.812e+04  6.968e+02 -69.052  < 2e-16 ***
+Latitude      -4.731e+04  6.608e+02 -71.588  < 2e-16 ***
+TotalRooms    -9.484e+00  8.003e-01 -11.850  < 2e-16 ***
+TotalBedrooms  1.053e+02  7.014e+00  15.018  < 2e-16 ***
+Population    -3.965e+01  1.097e+00 -36.148  < 2e-16 ***
+Households     5.507e+01  7.641e+00   7.207  5.9e-13 ***
+MedianIncome   3.909e+04  3.380e+02 115.666  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 70730 on 20631 degrees of freedom
+Multiple R-squared:  0.6245,	Adjusted R-squared:  0.6244 
+F-statistic:  4902 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+
+La eliminación de esta variable tampoco permite obtener un modelo más óptimo. Se considera ahora la eliminación de la variable **TotalRooms**:
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin TotalRooms
+fit.mul7 <- lm(MedianHouseValue ~ .-TotalRooms, data=calif.data)
+summary(fit.mul7)
+```
+
+Este modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - TotalRooms, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-541372  -44180  -11557   30729  859216 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -3.692e+06  6.197e+04 -59.580  < 2e-16 ***
+Longitude        -4.419e+04  7.025e+02 -62.909  < 2e-16 ***
+Latitude         -4.421e+04  6.564e+02 -67.349  < 2e-16 ***
+HousingMedianAge  1.184e+03  4.320e+01  27.397  < 2e-16 ***
+TotalBedrooms     7.791e+01  6.013e+00  12.958  < 2e-16 ***
+Population       -4.168e+01  1.039e+00 -40.122  < 2e-16 ***
+Households        5.238e+01  7.525e+00   6.961 3.48e-12 ***
+MedianIncome      3.817e+04  2.698e+02 141.492  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69710 on 20631 degrees of freedom
+Multiple R-squared:  0.6352,	Adjusted R-squared:  0.6351 
+F-statistic:  5132 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+
+Se observa que este modelo tampoco permite obtener mejores resultados. Se prueba ahora la eliminación de la variable **Latitude**:
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin Latitude
+fit.mul8 <- lm(MedianHouseValue ~ .-Latitude, data=calif.data)
+summary(fit.mul8)
+```
+
+Este modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - Latitude, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-637336  -48060  -11652   34333  703577 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -1.074e+05  3.226e+04  -3.328 0.000877 ***
+Longitude        -5.141e+02  2.695e+02  -1.908 0.056419 .  
+HousingMedianAge  1.873e+03  4.551e+01  41.145  < 2e-16 ***
+TotalRooms       -1.982e+01  8.375e-01 -23.663  < 2e-16 ***
+TotalBedrooms     1.021e+02  7.538e+00  13.544  < 2e-16 ***
+Population       -3.519e+01  1.177e+00 -29.885  < 2e-16 ***
+Households        1.238e+02  8.107e+00  15.273  < 2e-16 ***
+MedianIncome      4.773e+04  3.425e+02 139.336  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 75970 on 20631 degrees of freedom
+Multiple R-squared:  0.5668,	Adjusted R-squared:  0.5666 
+F-statistic:  3856 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+
+El modelo obtenido tampoco permite mejorar los resultados del modelo lineal que consideraba todas las variables. Se considera, por último, la eliminación de la variable **MedianIncome**:
+
+```{r}
+# Elaboración de un modelo lineal múltiple sin Latitude
+fit.mul9 <- lm(MedianHouseValue ~ .-MedianIncome, data=calif.data)
+summary(fit.mul9)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . - MedianIncome, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-406028  -58602  -17162   40465 1231533 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      -5.645e+06  7.843e+04 -71.973   <2e-16 ***
+Longitude        -6.998e+04  8.815e+02 -79.386   <2e-16 ***
+Latitude         -7.112e+04  8.212e+02 -86.602   <2e-16 ***
+HousingMedianAge  4.876e+02  5.580e+01   8.737   <2e-16 ***
+TotalRooms        4.822e+01  8.253e-01  58.428   <2e-16 ***
+TotalBedrooms    -1.727e+02  8.445e+00 -20.445   <2e-16 ***
+Population       -6.334e+01  1.381e+00 -45.873   <2e-16 ***
+Households        1.207e+02  9.766e+00  12.357   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 90640 on 20631 degrees of freedom
+Multiple R-squared:  0.3833,	Adjusted R-squared:  0.3831 
+F-statistic:  1832 on 7 and 20631 DF,  p-value: < 2.2e-16
+```
+
+Este modelo tampoco permite obtener un mejor ajuste que el modelo que consideraba todas las variables.
+
+Puesto que la eliminación de variables parece consucir a modelos con peores rendimientos, se considerarán modelos que involucren todas las variables, pero se probará a añadir términos no lineales.
+
+Primeramente se prueba a añadir el término **MedianIncome** elevado al cuadrado
+
+```{r}
+# Elaboración de un modelo lineal múltiple con términos no lineales
+fit.mul10 <- lm(MedianHouseValue ~ .+I(MedianIncome^2), data=calif.data)
+summary(fit.mul10)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . + I(MedianIncome^2), data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-499613  -44125  -11086   30996  783592 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       -3.498e+06  6.276e+04 -55.738  < 2e-16 ***
+Longitude         -4.137e+04  7.196e+02 -57.499  < 2e-16 ***
+Latitude          -4.109e+04  6.811e+02 -60.326  < 2e-16 ***
+HousingMedianAge   1.219e+03  4.329e+01  28.160  < 2e-16 ***
+TotalRooms        -1.048e+01  8.060e-01 -13.005  < 2e-16 ***
+TotalBedrooms      1.274e+02  6.965e+00  18.293  < 2e-16 ***
+Population        -3.711e+01  1.081e+00 -34.334  < 2e-16 ***
+Households         4.072e+01  7.512e+00   5.421 6.01e-08 ***
+MedianIncome       5.030e+04  8.652e+02  58.136  < 2e-16 ***
+I(MedianIncome^2) -8.538e+02  6.782e+01 -12.588  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69260 on 20629 degrees of freedom
+Multiple R-squared:  0.6399,	Adjusted R-squared:  0.6397 
+F-statistic:  4073 on 9 and 20629 DF,  p-value: < 2.2e-16
+```
+
+Se observa la obtención de un modelo con un rendimiento algo superior, aunque se decide investigar la incorporación del producto de todas las variables que intevenían en los modelos de regresión lineales simples y que proveían un mayor valor *R-squared* ajustado:
+
+```{r}
+# Elaboración de un modelo lineal múltiple con términos no lineales
+fit.mul11 <- lm(MedianHouseValue ~ .+MedianIncome*Latitude*TotalRooms, data=calif.data)
+summary(fit.mul11)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . + MedianIncome * Latitude * 
+    TotalRooms, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-517183  -42882  -11171   29853  889519 
+
+Coefficients:
+                                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                      -3.531e+06  7.295e+04 -48.393  < 2e-16 ***
+Longitude                        -4.201e+04  7.288e+02 -57.638  < 2e-16 ***
+Latitude                         -4.115e+04  1.012e+03 -40.679  < 2e-16 ***
+HousingMedianAge                  1.125e+03  4.297e+01  26.190  < 2e-16 ***
+TotalRooms                       -4.104e+01  1.035e+01  -3.966 7.32e-05 ***
+TotalBedrooms                     1.575e+02  7.384e+00  21.330  < 2e-16 ***
+Population                       -3.667e+01  1.081e+00 -33.931  < 2e-16 ***
+Households                        3.553e+01  7.552e+00   4.705 2.56e-06 ***
+MedianIncome                      5.013e+04  7.184e+03   6.977 3.10e-12 ***
+Latitude:MedianIncome            -3.837e+02  2.023e+02  -1.897   0.0579 .  
+TotalRooms:MedianIncome           2.356e+00  2.137e+00   1.102   0.2703    
+Latitude:TotalRooms               4.493e-01  2.890e-01   1.555   0.1201    
+Latitude:TotalRooms:MedianIncome -6.399e-03  6.048e-02  -0.106   0.9157    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69090 on 20626 degrees of freedom
+Multiple R-squared:  0.6417,	Adjusted R-squared:  0.6415 
+F-statistic:  3079 on 12 and 20626 DF,  p-value: < 2.2e-16
+```
+
+Se observa que el modelo obtenido permite mejorar los resultados del modelo lineal planteado inicialmente. Sin embargo, los valores *p-value* obtenidos llevan a desconfiar de la presencia de algunos de los términos del multiplicando. Se considera a eliminar la variable *Latitude* del término multiplicando.
+
+```{r}
+# Elaboración de un modelo lineal múltiple con términos no lineales
+fit.mul12 <- lm(MedianHouseValue ~ .+MedianIncome*TotalRooms, data=calif.data)
+summary(fit.mul12)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . + MedianIncome * TotalRooms, 
+    data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-526881  -42923  -11342   29824  874539 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             -3.487e+06  6.254e+04 -55.760  < 2e-16 ***
+Longitude               -4.164e+04  7.128e+02 -58.422  < 2e-16 ***
+Latitude                -4.115e+04  6.754e+02 -60.924  < 2e-16 ***
+HousingMedianAge         1.129e+03  4.295e+01  26.277  < 2e-16 ***
+TotalRooms              -2.475e+01  1.314e+00 -18.840  < 2e-16 ***
+TotalBedrooms            1.533e+02  7.317e+00  20.956  < 2e-16 ***
+Population              -3.704e+01  1.077e+00 -34.392  < 2e-16 ***
+Households               3.970e+01  7.492e+00   5.299 1.18e-07 ***
+MedianIncome             3.656e+04  4.075e+02  89.732  < 2e-16 ***
+TotalRooms:MedianIncome  2.097e+00  1.336e-01  15.700  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 69120 on 20629 degrees of freedom
+Multiple R-squared:  0.6414,	Adjusted R-squared:  0.6413 
+F-statistic:  4100 on 9 and 20629 DF,  p-value: < 2.2e-16
+```
+
+Se observa que la eliminación de este término del producto lleva a obtener resultados similares al modelo anterior y además, los valores *p-value* nos dan una mayor seguridad en la utilidad del término producto. Se propone a continuación, la incorporación de la variable **HousingMedianAge**:
+
+```{r}
+fit.mul13 <- lm(MedianHouseValue ~ .+MedianIncome*TotalRooms*HousingMedianAge, data=calif.data)
+summary(fit.mul13)
+```
+
+El anterior modelo permite obtener los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . + MedianIncome * TotalRooms * 
+    HousingMedianAge, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-548876  -42648  -11332   29615  877410 
+
+Coefficients:
+                                           Estimate Std. Error t value Pr(>|t|)
+(Intercept)                              -3.493e+06  6.221e+04 -56.147  < 2e-16
+Longitude                                -4.229e+04  7.102e+02 -59.549  < 2e-16
+Latitude                                 -4.196e+04  6.735e+02 -62.296  < 2e-16
+HousingMedianAge                         -3.599e+02  1.328e+02  -2.709  0.00674
+TotalRooms                               -3.088e+01  1.571e+00 -19.664  < 2e-16
+TotalBedrooms                             1.519e+02  7.274e+00  20.889  < 2e-16
+Population                               -3.569e+01  1.074e+00 -33.212  < 2e-16
+Households                                2.334e+01  7.540e+00   3.096  0.00197
+MedianIncome                              2.859e+04  8.878e+02  32.202  < 2e-16
+TotalRooms:MedianIncome                   3.057e+00  2.261e-01  13.521  < 2e-16
+HousingMedianAge:MedianIncome             2.240e+02  2.877e+01   7.785 7.28e-15
+HousingMedianAge:TotalRooms               4.024e-01  4.928e-02   8.166 3.38e-16
+HousingMedianAge:TotalRooms:MedianIncome -2.924e-02  9.723e-03  -3.007  0.00264
+                                            
+(Intercept)                              ***
+Longitude                                ***
+Latitude                                 ***
+HousingMedianAge                         ** 
+TotalRooms                               ***
+TotalBedrooms                            ***
+Population                               ***
+Households                               ** 
+MedianIncome                             ***
+TotalRooms:MedianIncome                  ***
+HousingMedianAge:MedianIncome            ***
+HousingMedianAge:TotalRooms              ***
+HousingMedianAge:TotalRooms:MedianIncome ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 68690 on 20626 degrees of freedom
+Multiple R-squared:  0.6459,	Adjusted R-squared:  0.6457 
+F-statistic:  3136 on 12 and 20626 DF,  p-value: < 2.2e-16
+```
+
+Se observa que el anterior modelo mejora brevemente los resultados del anterior modelo. Se decide continuar agregando más términos al multiplicando.
+
+```{r}
+fit.mul14 <- lm(MedianHouseValue ~ .+MedianIncome*TotalRooms*HousingMedianAge*Households, data=calif.data)
+summary(fit.mul14)
+```
+
+Se obtienen los siguientes resultados:
+
+```
+Call:
+lm(formula = MedianHouseValue ~ . + MedianIncome * TotalRooms * 
+    HousingMedianAge * Households, data = calif.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-455988  -42099  -10696   29375  762405 
+
+Coefficients:
+                                                      Estimate Std. Error
+(Intercept)                                         -3.302e+06  6.189e+04
+Longitude                                           -4.025e+04  7.064e+02
+Latitude                                            -3.978e+04  6.722e+02
+HousingMedianAge                                    -5.902e+02  1.682e+02
+TotalRooms                                          -3.347e+01  3.024e+00
+TotalBedrooms                                        1.438e+02  7.657e+00
+Population                                          -3.464e+01  1.090e+00
+Households                                           3.637e+01  1.730e+01
+MedianIncome                                         2.593e+04  1.134e+03
+TotalRooms:MedianIncome                              8.427e+00  5.898e-01
+HousingMedianAge:MedianIncome                        1.308e+02  3.620e+01
+HousingMedianAge:TotalRooms                          2.757e-01  1.102e-01
+Households:MedianIncome                             -3.831e+01  4.058e+00
+TotalRooms:Households                                3.730e-03  8.193e-04
+HousingMedianAge:Households                         -2.660e+00  5.521e-01
+HousingMedianAge:TotalRooms:MedianIncome            -3.060e-01  2.294e-02
+TotalRooms:Households:MedianIncome                  -3.039e-04  1.521e-04
+HousingMedianAge:Households:MedianIncome             2.891e+00  1.526e-01
+HousingMedianAge:TotalRooms:Households               6.392e-05  5.658e-05
+HousingMedianAge:TotalRooms:Households:MedianIncome -5.827e-05  1.144e-05
+                                                    t value Pr(>|t|)    
+(Intercept)                                         -53.349  < 2e-16 ***
+Longitude                                           -56.978  < 2e-16 ***
+Latitude                                            -59.181  < 2e-16 ***
+HousingMedianAge                                     -3.509 0.000450 ***
+TotalRooms                                          -11.071  < 2e-16 ***
+TotalBedrooms                                        18.775  < 2e-16 ***
+Population                                          -31.768  < 2e-16 ***
+Households                                            2.102 0.035585 *  
+MedianIncome                                         22.864  < 2e-16 ***
+TotalRooms:MedianIncome                              14.289  < 2e-16 ***
+HousingMedianAge:MedianIncome                         3.613 0.000304 ***
+HousingMedianAge:TotalRooms                           2.501 0.012403 *  
+Households:MedianIncome                              -9.443  < 2e-16 ***
+TotalRooms:Households                                 4.552 5.35e-06 ***
+HousingMedianAge:Households                          -4.817 1.47e-06 ***
+HousingMedianAge:TotalRooms:MedianIncome            -13.342  < 2e-16 ***
+TotalRooms:Households:MedianIncome                   -1.998 0.045755 *  
+HousingMedianAge:Households:MedianIncome             18.948  < 2e-16 ***
+HousingMedianAge:TotalRooms:Households                1.130 0.258664    
+HousingMedianAge:TotalRooms:Households:MedianIncome  -5.093 3.55e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 67370 on 20619 degrees of freedom
+Multiple R-squared:  0.6595,	Adjusted R-squared:  0.6591 
+F-statistic:  2101 on 19 and 20619 DF,  p-value: < 2.2e-16
+```
+
+Se aprecia que el rendimiento del modelo mejora con respecto al anterior. No obstante, los valores *p-value* obtenidos añaden cierta desconfianza sobre la presencialidad de algunos de los términos del modelo (en concreto del producto *HousingMedianAge*, *TotalRooms* y *Households*).
+
+Elegimos este modelo y procedemos a la realización de otros modelos.
+---
+## Comparación de modelos mediante validación cruzada
+
+A continuación, se pretende comparar rendimiento del modelo generado en el epígrafe anterior, con el modelo de regresión lineal que consideraba todas las variables el *dataset* como variables dependienetes y un modelo basado en K-NN que tambiñen considere todas las variables.
+
+La evaluación de los rendimientos se realizará haciendo uso de un *5-fold* para el cual, se cuenta con un particionamiento previamente elaborado y descargable desde la misma web, y haciendo uso de la medida *MSE*.
+
+### Evaluación del modelo lineal con todas las variables
+```{r}
+# Se evalúa el modelo lineal que consideraba todas las variables
+nombre <- "california"
+run_lm_fold <- function(i, x, tt = "test") {
+  
+  file <- paste(x, "-5-", i, "tra.dat", sep="")
+  x_tra <- read.csv(file, comment.char="@")
+  file <- paste(x, "-5-", i, "tst.dat", sep="")
+  x_tst <- read.csv(file, comment.char="@")
+  
+  In <- length(names(x_tra)) - 1
+  
+  names(x_tra)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tra)[In+1] <- "Y"
+  names(x_tst)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tst)[In+1] <- "Y"
+  
+  if (tt == "train") {
+    test <- x_tra
+  } else {
+    test <- x_tst
+  }
+
+  fitMulti=lm(Y~., x_tra)
+  yprime=predict(fitMulti,test)
+  sum(abs(test$Y-yprime)^2)/length(yprime) ##MSE
+}
+
+lmMSEtrain<-mean(sapply(1:5,run_lm_fold,nombre,"train"))
+lmMSEtest<-mean(sapply(1:5,run_lm_fold,nombre,"test"))
+
+cat('Error MSE medio medido sobre el conjunto de train', lmMSEtrain, fill=T)
+cat('Error MSE medio medido sobre el conjunto de test', lmMSEtest, fill=T)
+```
+Se ha obtenido un **error MSE medio de entrenamiento** de 4826189710, mientras que **error MSE medio de test** es de 4844365688.
+---
+### Evaluación del modelo de regresión estudiado en el epígrafe anterior
+```{r}
+# Se evalúa el modelo obtenido en el epígrafe anterior
+nombre <- "california"
+run_cm_fold <- function(i, x, tt = "test") {
+  
+  file <- paste(x, "-5-", i, "tra.dat", sep="")
+  x_tra <- read.csv(file, comment.char="@")
+  file <- paste(x, "-5-", i, "tst.dat", sep="")
+  x_tst <- read.csv(file, comment.char="@")
+  
+  In <- length(names(x_tra)) - 1
+  
+  names(x_tra)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tra)[In+1] <- "Y"
+  names(x_tst)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tst)[In+1] <- "Y"
+  
+  if (tt == "train") {
+    test <- x_tra
+  } else {
+    test <- x_tst
+  }
+
+  fitMulti=lm(Y ~ .+X8*X4*X3*X7, data=x_tra)
+  yprime=predict(fitMulti,test)
+  sum(abs(test$Y-yprime)^2)/length(yprime) ##MSE
+}
+
+cmMSEtrain<-mean(sapply(1:5,run_cm_fold,nombre,"train"))
+cmMSEtest<-mean(sapply(1:5,run_cm_fold,nombre,"test"))
+
+cat('Error MSE medio medido sobre el conjunto de train', cmMSEtrain, fill=T)
+cat('Error MSE medio medido sobre el conjunto de test', cmMSEtest, fill=T)
+```
+Se ha obtenido un **error MSE medio de entrenamiento** de 4525838523, mientras que **error MSE medio de test** es de 4577783319.
+
+Se observa que, tanto para *train* como para *test*, los errores obtenidos son inferiores a los errores obtenidos por el modelo lineal compuesto por todas las variables dependientes, lo cual nos lleva a afirmar que el modelo obtenido en el epígrafe anterior es óptimo.
+---
+### Evaluación del modelo basado en K-NN considerando todas las variables
+
+Por último, se elabora un modelo basado en K-NN considerando todas las variables del dataset. En este caso, se tomarán los parámetros por defecto asignados por R a la ejecución del algoritmo K-NN, que entre los más significativos se encuentra K=7 y distancia euclídea como medida de distancia.
+
+```{r}
+require(kknn)
+
+# Se evalúa el rendimiento de un modelo basado en K-NN
+nombre <- "california"
+run_knn_fold <- function(i, x, tt = "test") {
+  
+  file <- paste(x, "-5-", i, "tra.dat", sep="")
+  x_tra <- read.csv(file, comment.char="@")
+  file <- paste(x, "-5-", i, "tst.dat", sep="")
+  x_tst <- read.csv(file, comment.char="@")
+  
+  In <- length(names(x_tra)) - 1
+  names(x_tra)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tra)[In+1] <- "Y"
+  names(x_tst)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tst)[In+1] <- "Y"
+  
+  if (tt == "train") {
+    test <- x_tra
+  } else {
+    test <- x_tst
+  }
+  
+  fitMulti=kknn(Y~.,x_tra,test)
+  yprime=fitMulti$fitted.values
+  sum(abs(test$Y-yprime)^2)/length(yprime) ##MSE
+}
+
+knnMSEtrain<-mean(sapply(1:5,run_knn_fold,nombre,"train"))
+knnMSEtest<-mean(sapply(1:5,run_knn_fold,nombre,"test"))
+
+cat('Error MSE medio medido sobre el conjunto de train', knnMSEtrain, fill=T)
+cat('Error MSE medio medido sobre el conjunto de test', knnMSEtest, fill=T)
+```
+Se ha obtenido un **error MSE medio de entrenamiento** de 1560868807, mientras que **error MSE medio de test** es de 3845914481.
+
+En este caso, los errores MSE medios obtenidos por este modelo basado en K-NN tanto en el conjunto de *train* como de *test* son inferiores a los errores obtenidos por los anteriores modelos, lo cual nos lleva a situar a este modelo como el **más óptimo de todos los modelos comparados en este epígrafe**.
+---
+## Comparación de los algoritmos mediante tests estadísticos
+
+Por último, se pretende comparar el rendimiento de los modelos para determinar si existen diferencias significativas en el rendimiento de los mismos haciendo uso de diversos tests estadísticos.
+
+Para llevar a cabo esta comparación, se tomarán los errores MSE medios de *train* y *test* medidos en el anterior epígrafe sobre el *dataset* California además de los errores de *train* y *test* medidos sobre otros 17 *datasets*.
+
+```{r}
+# Cargar tablas con los errores sobre los diferentes datasets
+
+# Leemos la tabla con los errores medios de test
+resultados <- read.csv("regr_test_alumnos.csv")
+tablatst <- cbind(resultados[,2:dim(resultados)[2]])
+colnames(tablatst) <- names(resultados)[2:dim(resultados)[2]]
+rownames(tablatst) <- resultados[,1]
+
+# Leemos la tabla con los errores medios de entrenamiento
+resultados <- read.csv("regr_train_alumnos.csv")
+tablatra <- cbind(resultados[,2:dim(resultados)[2]])
+colnames(tablatra) <- names(resultados)[2:dim(resultados)[2]]
+rownames(tablatra) <- resultados[,1]
+```
+
+### Comparación del modelo lineal con todas las variables y modelo K-NN
+
+Primeramente, se desea comparar los rendimientos de los modelos lineales que consideran todas las variables dependientes del *dataset* y los modelos K-NN que también se elaboran considerando todas las variables dependientes del *dataset*.
+
+Puesto que se pretenden comparar dos tipos de modelos sobre los 18 *datasets*, resulta idóneo realizar esta comparación mediante el **test de Wilcoxon**.
+
+Se plantea el test modelo de regresión lineal múltiple (lm) vs K-NN:
+
+```{r}
+##lm (other) vs knn (ref)
+# + 0.1 porque wilcox R falla para valores == 0 en la tabla
+difs <- (tablatst[,1] - tablatst[,2]) / tablatst[,1]
+wilc_1_2 <- cbind(ifelse (difs<0, abs(difs)+0.1, 0+0.1), ifelse (difs>0, abs(difs)+0.1, 0+0.1))
+colnames(wilc_1_2) <- c(colnames(tablatst)[1], colnames(tablatst)[2])
+head(wilc_1_2)
+```
+
+Y se realiza el test de Wilcoxon mostrando los resultados para compararlos:
+
+```{r}
+# Realizar el test de Wilcoxon
+LMvsKNNtst <- wilcox.test(wilc_1_2[,1], wilc_1_2[,2], alternative = "two.sided", paired=TRUE)
+Rmas <- LMvsKNNtst$statistic
+pvalue <- LMvsKNNtst$p.value
+LMvsKNNtst <- wilcox.test(wilc_1_2[,2], wilc_1_2[,1], alternative = "two.sided", paired=TRUE)
+Rmenos <- LMvsKNNtst$statistic
+
+cat('Valor R+: ', Rmas, fill=T)
+cat('Valor R-: ', Rmenos, fill=T)
+cat('p-value asociado al test: ', pvalue, fill=T)
+```
+
+Del anterior test se obtienen los siguientes resultados:
+
+```
+Valor R+:  92
+Valor R-:  79
+p-value asociado al test 0.7987061
+```
+
+Se ha obtenido un valor *p-value* equivalente a 0.7987061, lo cual nos lleva a aceptar que las medianas de los errores de ambos modelos son similares rechazando la existencia de diferencias significativas entre los modelos.
+
+### Comparación de todos los modelos
+
+Por último, se desean comparar los rendimientos de los tres modelos tratados en el epígrafe anterior: modelos lineales con todas las variables de los *datasets* (lm), modelos no lineales elaborados progresivamente (M5) y modelos basados en K-NN.
+
+Para esta comparación se aplicará en primer lugar el **test de Friedman** seguido del test *post-hoc* Holm.
+
+### Comparación mediante el Test de Fiedman
+
+```{r}
+# Se aplica el test de Friedman
+test_friedman <- friedman.test(as.matrix(tablatst))
+test_friedman
+```
+
+El anterior test obtiene los siguientes resultados:
+
+```
+	Friedman rank sum test
+
+data:  as.matrix(tablatst)
+Friedman chi-squared = 4.1111, df = 2, p-value = 0.128
+```
+
+Al tener un valor *p-value* mayor que 0.05, aceptamos que no existen diferencias significativas entre los rendimientos de los modelos obtenidos.
+
+### Comparación mediante el Test post-hoc Holm
+
+```{r}
+# Ejecución del test post-hoc Holm
+tam <- dim(tablatst)
+groups <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(tablatst), groups, p.adjust = "holm", paired = TRUE)
+```
+
+Del anterior test se obtienen los siguientes resultados:
+
+```
+Pairwise comparisons using Wilcoxon signed rank test 
+
+data:  as.matrix(tablatst) and groups 
+
+  1    2   
+2 0.97 -   
+3 0.27 0.88
+```
+
+Los resultados del test *post-hoc* Holm corroboran las conclusiones extraídas del test de Friedman: La comparación a pares entre todos los modelos **no revela la existencia de diferencias significativas (con un 95% de confianza) entre los modelos**. En cada par los *p-value* resultan con valores superiores a 0.05.

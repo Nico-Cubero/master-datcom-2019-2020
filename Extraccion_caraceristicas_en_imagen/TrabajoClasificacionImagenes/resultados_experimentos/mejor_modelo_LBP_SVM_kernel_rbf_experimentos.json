@@ -1,0 +1,19 @@
+[
+    {
+        "kernel_type": 2,
+        "Cvalue": 2,
+        "gamma": 0.5,
+        "resultados": {
+            "CCR": 0.9881818181818182,
+            "precission": 0.9959266802443992,
+            "recall": 0.978,
+            "ROC": 0.9873333333333334,
+            "confussion_matrix": {
+                "TN": 598.0,
+                "FN": 2.0,
+                "FP": 11.0,
+                "TP": 489.0
+            }
+        }
+    }
+]

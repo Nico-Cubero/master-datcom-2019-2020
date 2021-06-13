@@ -1,0 +1,650 @@
+[
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.0001,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.6041977405548096
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.0001,
+        "degree": 3,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5984134674072266
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.0001,
+        "degree": 4,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5951647758483887
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.005,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5961837768554688
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.005,
+        "degree": 3,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5920696258544922
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.005,
+        "degree": 4,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5955815315246582
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.001,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5983846187591553
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.001,
+        "degree": 3,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5930097103118896
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.001,
+        "degree": 4,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.5981338024139404
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.05,
+        "degree": 2,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.5711226463317871
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.05,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.5834505558013916
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.05,
+        "degree": 4,
+        "resultados": {
+            "CCR": 0.9875,
+            "precission": 1.0,
+            "recall": 0.9761904761904762,
+            "ROC": 0.9880952380952381,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 2.0,
+                "TP": 82.0
+            }
+        },
+        "tiempo_train": 0.6111288070678711
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.01,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.6177847385406494
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.01,
+        "degree": 3,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.6103062629699707
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.01,
+        "degree": 4,
+        "resultados": {
+            "CCR": 0.475,
+            "precission": 0.0,
+            "recall": 0.0,
+            "ROC": 0.5,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 84.0,
+                "TP": 0.0
+            }
+        },
+        "tiempo_train": 0.6103250980377197
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.5,
+        "degree": 2,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.23493504524230957
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.5,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.277040958404541
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.5,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.32762908935546875
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.1,
+        "degree": 2,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.44716691970825195
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.1,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.4627382755279541
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 0.1,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.5068385601043701
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 1,
+        "degree": 2,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.20896363258361816
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 1,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.2504849433898926
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 1,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.32453489303588867
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 2,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.99375,
+            "precission": 0.9882352941176471,
+            "recall": 1.0,
+            "ROC": 0.9934210526315789,
+            "confussion_matrix": {
+                "TN": 75.0,
+                "FN": 1.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.1966409683227539
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 2,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.2499082088470459
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 2,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.31903743743896484
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 5,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.99375,
+            "precission": 0.9882352941176471,
+            "recall": 1.0,
+            "ROC": 0.9934210526315789,
+            "confussion_matrix": {
+                "TN": 75.0,
+                "FN": 1.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.1985626220703125
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 5,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.25287604331970215
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 5,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.3135714530944824
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 7,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.99375,
+            "precission": 0.9882352941176471,
+            "recall": 1.0,
+            "ROC": 0.9934210526315789,
+            "confussion_matrix": {
+                "TN": 75.0,
+                "FN": 1.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.2040266990661621
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 7,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.2509787082672119
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 7,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.32143592834472656
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 10,
+        "degree": 2,
+        "resultados": {
+            "CCR": 0.99375,
+            "precission": 0.9882352941176471,
+            "recall": 1.0,
+            "ROC": 0.9934210526315789,
+            "confussion_matrix": {
+                "TN": 75.0,
+                "FN": 1.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.1991748809814453
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 10,
+        "degree": 3,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.25670599937438965
+    },
+    {
+        "kernel_type": 1,
+        "Cvalue": 10,
+        "degree": 4,
+        "resultados": {
+            "CCR": 1.0,
+            "precission": 1.0,
+            "recall": 1.0,
+            "ROC": 1.0,
+            "confussion_matrix": {
+                "TN": 76.0,
+                "FN": 0.0,
+                "FP": 0.0,
+                "TP": 84.0
+            }
+        },
+        "tiempo_train": 0.3128519058227539
+    }
+]

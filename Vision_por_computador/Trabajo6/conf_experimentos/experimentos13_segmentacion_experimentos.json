@@ -1,0 +1,16 @@
+[
+    {
+        "epochs": 25,
+        "arquitectura": null,
+        "load_weights": true,
+        "batch_size": 10,
+        "script": "train_Segment_Model.py",
+        "resultados": {
+            "loss_train": 0.02369643747806549,
+            "accuracy_train": 1.0,
+            "loss_test": 0.01322151395819477,
+            "accuracy_test": 1.0,
+            "ratio_loss_train_val": 1.792263545082014
+        }
+    }
+]

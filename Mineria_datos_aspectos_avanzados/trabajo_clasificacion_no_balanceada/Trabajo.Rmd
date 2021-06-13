@@ -1,0 +1,679 @@
+---
+title: "Clasificación no balanceada - Aplicaciones"
+author: Nicolás Cubero
+date: "16 de Febrero de 2020"
+output: pdf_document
+always_allow_html: true
+---
+
+# Clasificación no balanceada
+
+En este proyecto se aplican diversos mecanismos para el desarrollo de modelos de clasificación binaria sobre un *dataset* no balanceado: el *dataset* **subclus**.
+De este modo, se desarrollarán diversos modelos de clasificación aplicando diversos mecanismos para tratar el problema del desbalaceamiento de clases, y se compararán y analizarán los resultados obtenidos.
+
+```{r}
+# Librerías a importar
+library(caret)
+library(imbalance)
+library(dplyr)
+library(pROC)
+library(tidyr)
+library(ggplot2)
+library(ggvis)
+```
+## Actividad 1: Extensión con otros datasets.
+
+En primer lugar, los datos del *dataset* **subclus** son cargados:
+```{r}
+# Cargar el fichero CSV con el dataset y asignar a priori los nombre de la columna
+dataset <- read.csv("subclus.csv",header = FALSE, col.names = c("Att1", "Att2", "Class"))
+
+# Asegurarnos de asignar la clase "positive" como la primera
+dataset$Class <- relevel(dataset$Class,"positive") #to ensure it appears at the first class
+```
+
+### Análisis y división del dataset
+Primeramente, se analiza de forma breve la estructura y estadísticos básicos del dataset.
+
+Analizamos las dimensiones del dataset:
+```{r}
+dim(dataset)
+```
+El dataset presenta un total de 600 instancias con 3 atributos medidos.
+----
+Analizamos la estructura del dataset para conocer el tipo de dato de cada atributo:
+```{r}
+str(dataset)
+```
+Observamos que las 2 variables independientes del *dataset* (*Att1* y *Att2*) son variables numéricas enteras mientras que la clase (*Class*) es una variable nominal binaria con los valores *positive* y *negative*.
+-----
+Observamos un ejemplo de los datos
+```{r}
+# Mostrar ejemplo de los datos
+head(dataset)
+```
+Y analizamos los estadísticos de posición más importantes y el ratio de desbalanceamiento de las clases
+```{r}
+# Resumen del dataset
+summary(dataset)
+
+# Grado de desbalanceamiento
+cat('Ratio de desbalanceamiento: ',imbalanceRatio(dataset))
+```
+Por último, analizamos brevemente de forma visual el *dataset*:
+
+#### Distribución de las clases
+
+```{r}
+# Diagrama de barra de la distribución de clases
+ggplot2::ggplot(dataset, aes(Class)) +
+  geom_bar(fill='white', colour = 'red')
+```
+
+
+#### Nube de puntos del dataset
+
+```{r}
+# Scatterplot de Att2 frente a Att1 coloreada por Class
+ggplot2::ggplot(dataset, aes(x=Att1, y=Att2, color=Class)) +
+  geom_point()
+```
+
+Por último, para la ejecución de modelos, dividimos el dataset en variables independientes (x) y variable dependiente(y) 
+
+```{r}
+# Particionar v. independientes y la clase
+x = dataset[,1:2]
+y = dataset[,3]
+```
+
+### Generación de modelos con KNN
+
+En este apartado se generarán modelos de KNN usando 3 métodos diferentes:
+
+1. Dataset original (raw data)
+2. Uso de técnicas de muestreo triviales.
+3. Uso de **SMOTE** para sobremuestrear la clase minoritaria
+
+Para la generación de estos, modelos, inicialmente el dataset será divido en un conjunto estratificado de *train* y *test*, reservando un 75% para el conjunto de train y un 25% para el de test.
+
+Cada modelo se obtendrá realizando un *tunning* de su parámetro *k* y ejecutando una validación cruzada (*K-fold* con K=5). Por su parte, el rendimiento del modelo se medirá determinando su **curva ROC** y determinando su **área bajo la curva** (*AUC*):
+
+#### División del dataset en un conjunto de train y test
+
+```{r}
+set.seed(11) #Fijar una semilla fija
+
+#Dividir el dataset en un conjunto de train y test
+trainIndex <- createDataPartition(dataset$Class, p = .75,
+                                  list = FALSE, 
+                                  times = 1)
+trainData <- dataset[ trainIndex,]
+testData  <- dataset[-trainIndex,]
+```
+
+##### Considerando datos sin preprocesar (raw data)
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl.raw <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary)
+
+#Entrenar el modelo
+model.raw <- train(Class ~ ., data = trainData, method = "knn", 
+                 trControl = ctrl.raw, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realizada mediante Grid Search
+plot(model.raw,main="Grid Search RAW")
+print(model.raw)
+```
+El modelo mejor encontrado, considerando *ROC* como métrica, es aquel que considera un número de vecinos más cercanos *K* de 3. Si bien, para un valor de K=1, el modelo obtenido presenta mayores valores de *sensitividad* y *especificidad*, el hecho de que posea un valor de *ROC* más reducido indica que este modelo comete un mayor número de falsos postivos.
+---
+Evaluamos el modelo
+```{r}
+model.raw.pred <- predict(model.raw,newdata = testData)
+
+#Determinar matriz de confusión
+model.raw.cm <- confusionMatrix(model.raw.pred, testData$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.raw.probs <- predict(model.raw,newdata = testData, type="prob")
+model.raw.roc <- roc(testData$Class,model.raw.probs[,"positive"])
+```
+
+Matriz de confusión del modelo RAW:
+```{r}
+print(model.raw.cm)
+```
+
+Curva ROC del modelo RAW:
+```{r}
+plot(model.raw.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos RAW'),col="blue")
+```
+
+##### Considerando técnicas de submuestreo simple
+A continuación, se aplicará sobre los datos un preprocesamiento consistente en diversas técnicas de muestreo (*Undersampling*) simples
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl.us <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = 'down')
+
+#Entrenar el modelo
+model.us <- train(Class ~ ., data = trainData, method = "knn", 
+                 trControl = ctrl.us, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realizada mediante Grid Search
+plot(model.us,main="Grid Search Undersampling")
+print(model.us)
+```
+El modelo que ofrece mejor rendimiento medido mediante validación cruzada vuelve a ser el que considera un valor de k=3.
+----
+Evaluamos el modelo
+```{r}
+model.us.pred <- predict(model.us,newdata = testData)
+
+#Determinar matriz de confusión
+model.us.cm <- confusionMatrix(model.us.pred, testData$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.us.probs <- predict(model.us,newdata = testData, type="prob")
+model.us.roc <- roc(testData$Class,model.us.probs[,"positive"])
+```
+Matriz de confusión del modelo utilizando *Undersampling*:
+```{r}
+print(model.us.cm)
+```
+Curva ROC del modelo basado en *Undersampling*:
+```{r}
+plot(model.us.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos Undersampling'),col="blue")
+```
+
+##### Considerando sobremuestreo simple de la clase mayoritaria
+A continuación, se aplicará sobre los datos un preprocesamiento consistente en la aplicación de un sobremuestreo (*oversampling*) simple sobre la clase minoritaria.
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl.os <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = 'up')
+
+#Entrenar el modelo
+model.os <- train(Class ~ ., data = trainData, method = "knn", 
+                 trControl = ctrl.os, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realizada mediante Grid Search
+plot(model.os,main="Grid Search Oversampling")
+print(model.os)
+```
+El mejor modelo obtenido, teniendo en cuenta el área bajo la curva ROC, es aquel que considera un valor de K=7. Si bien este modelo presenta mayor *sensitividad*, no es el modelo que ofrece una mayor *especificidad*.
+
+Evaluamos el modelo
+```{r}
+model.os.pred <- predict(model.os,newdata = testData)
+
+#Determinar matriz de confusión
+model.os.cm <- confusionMatrix(model.os.pred, testData$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.os.probs <- predict(model.os,newdata = testData, type="prob")
+model.os.roc <- roc(testData$Class,model.os.probs[,"positive"])
+```
+Matriz de confusión del modelo basado en *Oversampling*:
+```{r}
+print(model.os.cm)
+```
+Curva ROC del modelo basado en *Oversampling*:
+```{r}
+plot(model.us.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos Oversampling'),col="blue")
+```
+
+##### Considerando submuestreo por SMOTE
+A continuación, se aplicará sobre los datos un preprocesamiento consistente en la aplicación de sobremuestreo sobre la clase minoritaria usando el método **SMOTE**.
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl.sm <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = 'smote')
+
+#Entrenar el modelo
+model.sm <- train(Class ~ ., data = trainData, method = "knn", 
+                 trControl = ctrl.sm, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realizada mediante Grid Search
+plot(model.sm,main="Grid Search SMOTE")
+print(model.sm)
+```
+El modelo que ofreció mejor valor según el área bajo la curva ROC medida sobre el conjunto de *train*, es aquel que considera K=5.
+
+Evaluamos el modelo
+```{r}
+model.sm.pred <- predict(model.sm,newdata = testData)
+
+#Determinar matriz de confusión
+model.sm.cm <- confusionMatrix(model.sm.pred, testData$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.sm.probs <- predict(model.sm,newdata = testData, type="prob")
+model.sm.roc <- roc(testData$Class,model.sm.probs[,"positive"])
+```
+Matriz de confusión del modelo usando **SMOTE**:
+```{r}
+print(model.sm.cm)
+```
+Curva ROC del modelo usando **SMOTE**:
+```{r}
+plot(model.sm.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos SMOTE'),col="blue")
+```
+
+
+#### Comparación de modelos
+Para terminar, comparamos los rendimientos de los modelos obtenidos mediante las diferentes técnicas de submuestreo o sobremuestreo empleadas durante el desarrollo de los mismos.
+
+Primeramente, comparamos las métricas ROC, *specifity* y *sensitivity* de forma resumida:
+```{r}
+models <- list(raw = model.raw,us = model.us,os = model.os,sm = model.sm)
+results <- resamples(models)
+
+summary(results)
+```
+
+Visualizando de forma gráfica esta información:
+
+```{r}
+#Comparación entre todos los métodos ejecutados<
+comparison <- data.frame(model = names(models),
+                         Sensitivity = rep(NA, length(models)),
+                         Specificity = rep(NA, length(models)),
+                         Precision = rep(NA, length(models)),
+                         F1 = rep(NA, length(models)),
+                         Accuracy = rep(NA, length(models)))
+
+for (name in names(models)) {
+  cm_model <- get(paste0("model.", name,'.cm'))
+  
+  comparison[comparison$model == name, ] <- filter(comparison, model == name) %>%
+    mutate(Sensitivity = cm_model$byClass["Sensitivity"],
+           Specificity = cm_model$byClass["Specificity"],
+           Precision = cm_model$byClass["Precision"],
+           F1 = cm_model$byClass["F1"],
+           Accuracy = cm_model$overall["Accuracy"])
+}
+
+comparison %>%
+  gather(x, y, Sensitivity:Accuracy) %>%
+  ggplot(aes(x = x, y = y, color = model)) +
+  geom_jitter(width = 0.2, alpha = 0.5, size = 3)
+
+```
+
+De los anteriores resultados podemos extraer las siguientes conclusiones:
+
+- El modelo sin preprocesamiento, ofrece una mayor *especificidad* que la del resto de modelos, dada su mayor capacidad para detectar patrones de la clase negativa debido al desbalanceamiento respecto de la clase positiva del *dataset*. Por el contario, **su capacidad para predecir patrones de la clase positiva es reducida**, tal y reflejan sus valores reducidos de *sensitividad*.
+
+- El modelo que hace uso de *undersampling*, mejora el nivel de *sensitividad*, debido a la eliminación del desbalanceamiento entre clases, lo cual incrementa su capacidad predictiva respecto de la clase positiva. No obstante, la *especificidad* del modelo, así como su *accuracy*, obtienen los peores resultados del conjunto de modelos obtenidos, lo que nos da una referencia de que la eliminación de patrones de la clase negativa perjudica claramente, en su capacidad predictiva respecto de esta clase. Se aprecia, por consiguiente, que la capacidad predictiva global del modelo es reducida.
+
+- Sobre el modelo que hace uso de *oversampling*, se aprecia que la *sensitividad* del modelo mejora respecto del modelo con *undersampling*, al igual que su *especificidad*. En líneas generales, se observa que el rendimiento global del modelo se ha incrementado respecto del método basado en *undersampling*, tal y como, se refleja en sus valores de *F1-score* y *accuraccy*, sin embargo, el sobremuestreo aplicado incorpora cierto ruido al clasificador que le lleva a recucir su capacidad predictiva de la clase negativa respecto del modelo sin prprocesamiento y no mejora, en gran medida, la predictibilidad de esta.
+
+- Por último, el sobremuestreo llevado a cabo mediante *SMOTE*, aunque obtiene peores medidas de *sensitividad* que los dos anteriores de sobremuestreo y submuestreo, pero superiores al modelo sin preprocesamiento, su *especificidad* y con ello, su capacidad para predecir la clase negativa es superior a estos dos anteriores métodos. Se aprecia que el método *SMOTE* permite encontrar un mejor balance entre la capacidad predictiva respecto de la clase positiva y la capacidad predictiva respecto de la clase negativa, ofreciendo un rendimiento global superior al del resto de modelos, hecho que se ve corroborado por su valor más alto de *F1-score*.
+
+## Actividad 2: Uso de "imbalance"
+
+Como segunda actividad, se aplicarán otras técnicas de sobremuestreo basadas en *SMOTE* para clasificación no balanceada haciendo uso del paquete **imbalance**.
+
+Para esta actividad, se aplicarán estos métodos sobre el *dataset* **ecoli1** y se elaborarán diversos modelos basados en SVM
+---
+Cargamos el *dataset* **ecoli1**:
+```{r}
+#Se carga el dataset
+attach(ecoli1)
+```
+Se analiza brevemente este *dataset*:
+Se analiza la estructura básica:
+```{r}
+str(ecoli1)
+```
+Analizamos también un resumen mediante estadísticos básicos y obtenemos las primeras filas del *dataset*:
+```{r}
+summary(ecoli1)
+head(ecoli1)
+```
+Se determina el nivel de desbalanceamiento de las clases:
+
+```{r}
+cat('Nivel de desbalanceamiento entre clases: ',imbalanceRatio(ecoli1))
+```
+
+### Análisis gráfico del dataset
+Finalmente, analizamos de forma visual el *dataset*:
+---
+Se estudia las clases
+```{r}
+# Diagrama de barra de la distribución de clases
+ggplot2::ggplot(ecoli1, aes(Class)) + geom_bar(colour = 'red', fill = 'white')
+```
+Analizar un diagrama de cajas (*boxplot*) de todas las variables numéricas:
+
+```{r}
+par(mfrow=c(1,ncol(ecoli1)-3))
+for(i in c(1:2,5:7)) {
+  boxplot(ecoli1[,i], main=names(ecoli1)[i])
+}
+```
+Un diagrama de cajas de las variables categóricas:
+
+La variable **Lip**
+```{r}
+ggplot2::ggplot(ecoli1, aes(Lip)) + geom_bar(fill='white', colour='red')
+```
+
+Y la variable **Chg**
+```{r}
+ggplot2::ggplot(ecoli1, aes(Chg)) + geom_bar(fill='white', colour='red')
+```
+
+
+### Desarrollo de modelos basados en SVM
+A continuación, de forma similar a como se realizó en la actividad anterior, se tratarán diveros métodos de  sobremuestreo basados en *SMOTE* sobre el conjunto de datos y se elaborarán diversos modelos basados en KNN.
+---
+Primeramente, y dado que KNN y los métodos de sobremuestreo trabajan con variables numéricas, **binarizamos las variable categórica** *Lip*. Por su parte, la variables *Chg* al presentar una variabilidad muy baja, conviene eliminarla:
+```{r}
+# Para la variable Lip, consideramos este valor a 1 si es igual a 1 y 0 si es igual a 0.48.
+ecoli1[['Lip']] = as.numeric(ecoli1[['Lip']]=='1')
+
+# Se elimina la variable Chg por carecer de variabilidad
+ecoli1[['Chg']] = NULL
+```
+
+Primeramente se divide el conjunto de *ecoli1* en un conjunto de *train* y un conjunto de *test*. Para ello se reservará nuevamente el 25% del *dataset* original para test, mientras que el resto constituirá el conjunto de *train*, llevándose a cabo esta división de forma estratificada.
+```{r}
+#Dividir el dataset en un conjunto de train y test
+trainIndex <- createDataPartition(ecoli1$Class, p = .75,
+                                  list = FALSE, 
+                                  times = 1)
+ecoli1.train <- ecoli1[ trainIndex,]
+ecoli1.test  <- ecoli1[-trainIndex,]
+```
+
+### Sobremuestreo con ADASYN
+Para este modelo, se sobremuestreará la clase minoritaria haciendo uso del método **ADASYN**:
+
+```{r}
+ecoli1.train.adasyn <- oversample(ecoli1.train, method = 'ADASYN')
+```
+
+Comparamos las distribución de clases del *dataset* original y del modificado:
+```{r}
+comp <- rbind(prop.table(table(ecoli1.train$Class)),
+        prop.table(table(ecoli1.train.adasyn$Class)))
+rownames(comp) <- c('Original', 'Adasyn')
+comp
+```
+
+Comparamos los porcentajes de desbalanceamiento:
+```{r}
+cat('Desbalanceamiento en dataset original: ', imbalanceRatio(ecoli1.train), fill=T)
+cat('Desbalanceamiento en dataset modificado: ', imbalanceRatio(ecoli1.train.adasyn))
+```
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary)
+
+#Entrenar el modelo
+model.adasyn <- train(Class ~ ., data = ecoli1.train.adasyn, method = "knn", 
+                 trControl = ctrl, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realziada mediante Grid Search
+plot(model.adasyn,main="Grid Search ASASYN")
+print(model.adasyn)
+```
+Evaluamos el modelo
+```{r}
+model.adasyn.pred <- predict(model.adasyn,newdata = ecoli1.test)
+
+#Determinar matriz de confusión
+model.adasyn.cm <- confusionMatrix(model.adasyn.pred, ecoli1.test$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.adasyn.probs <- predict(model.adasyn,newdata = ecoli1.test, type="prob")
+model.adasyn.roc <- roc(ecoli1.test$Class,model.adasyn.probs[,"positive"])
+```
+Evaluamos la matriz de confusión:
+```{r}
+print(model.adasyn.cm)
+```
+Curva ROC del modelo usando **ADASYN**:
+```{r}
+plot(model.adasyn.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos ADASYN'),col="blue")
+```
+
+### Sobremuestreo con RACOG
+Ahora, se empleará el método ** para sobremuestrear la clase minoritaria:
+
+```{r}
+ecoli1.train.racog <- oversample(ecoli1.train, ratio=1, method = 'RACOG')
+```
+
+Comparamos las distribución de clases del *dataset* original y del modificado:
+```{r}
+comp <- rbind(prop.table(table(ecoli1.train$Class)),
+        prop.table(table(ecoli1.train.racog$Class)))
+rownames(comp) <- c('Original', 'RACOG')
+comp
+```
+
+El porcentaje de desbalanceamiento:
+```{r}
+cat('Desbalanceamiento en dataset original: ', imbalanceRatio(ecoli1.train), fill=T)
+cat('Desbalanceamiento en dataset modificado: ', imbalanceRatio(ecoli1.train.racog))
+```
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl.racog <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary)
+
+#Entrenar el modelo
+model.racog <- train(Class ~ ., data = ecoli1.train.racog, method = "knn", 
+                 trControl = ctrl, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realziada mediante Grid Search
+plot(model.racog,main="Grid Search RACOG")
+print(model.racog)
+```
+Evaluamos el modelo
+```{r}
+model.racog.pred <- predict(model.racog,newdata = ecoli1.test)
+
+#Determinar matriz de confusión
+model.racog.cm <- confusionMatrix(model.racog.pred, ecoli1.test$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.racog.probs <- predict(model.racog,newdata = ecoli1.test, type="prob")
+model.racog.roc <- roc(ecoli1.test$Class,model.racog.probs[,"positive"])
+```
+Mostrar la matriz de confianza:
+```{r}
+print(model.racog.cm)
+```
+
+Curva ROC del modelo usando **RACOG**:
+```{r}
+plot(model.racog.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Método RACOG'),col="blue")
+```
+
+### Sobremuestreo con MWMOTE
+Para este modelo, se sobremuestreará la clase minoritaria haciendo uso del método **MWMOTE**:
+
+```{r}
+ecoli1.train.mwmote <- oversample(ecoli1.train, ratio=1, method = 'MWMOTE', replace=T)
+```
+
+Comparamos las distribución de clases del *dataset* original y del modificado:
+```{r}
+comp <- rbind(prop.table(table(ecoli1.train$Class)),
+        prop.table(table(ecoli1.train.adasyn$Class)))
+rownames(comp) <- c('Original', 'MWMOTE')
+comp
+```
+
+El porcentaje de desbalanceamiento:
+```{r}
+cat('Desbalanceamiento en dataset original: ', imbalanceRatio(ecoli1.train), fill=T)
+cat('Desbalanceamiento en dataset modificado: ', imbalanceRatio(ecoli1.train.mwmote))
+```
+
+```{r}
+#Establecer los parámetros de entrenamiento
+ctrl.mwmote <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary)
+
+#Entrenar el modelo
+model.mwmote <- train(Class ~ ., data = ecoli1.train.mwmote, method = "knn", 
+                 trControl = ctrl.raw, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(k = c(1,3,5,7,9,11))))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realziada mediante Grid Search
+plot(model.mwmote,main="Grid Search MWMOTE")
+print(model.mwmote)
+```
+Evaluamos el modelo
+```{r}
+model.mwmote.pred <- predict(model.mwmote,newdata = ecoli1.test)
+
+#Determinar matriz de confusión
+model.mwmote.cm <- confusionMatrix(model.mwmote.pred, ecoli1.test$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.mwmote.probs <- predict(model.adasyn,newdata = ecoli1.test, type="prob")
+model.mwmote.roc <- roc(ecoli1.test$Class,model.mwmote.probs[,"positive"])
+```
+
+Curva ROC del modelo usando **MWMOTE**:
+```{r}
+plot(model.mwmote.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos MWMOTE'),col="blue")
+```
+
+### Sobremuestreo con RWO
+Para este modelo, se sobremuestreará la clase minoritaria haciendo uso del método **RWO**:
+
+```{r}
+ecoli1.train.rwo <- oversample(ecoli1.train, ratio = 1, method = 'RWO')
+```
+
+Comparamos las distribución de clases del *dataset* original y del modificado:
+```{r}
+comp <- rbind(prop.table(table(ecoli1.train$Class)),
+        prop.table(table(ecoli1.train.rwo$Class)))
+rownames(comp) <- c('Original', 'RWO')
+comp
+```
+
+El porcentaje de desbalanceamiento:
+```{r}
+cat('Desbalanceamiento en dataset original: ', imbalanceRatio(ecoli1.train), fill=T)
+cat('Desbalanceamiento en dataset modificado: ', imbalanceRatio(ecoli1.train.rwo))
+```
+
+```{r}
+#Entrenar el modelo
+model.rwo <- train(Class ~ ., data = ecoli1.train.rwo, method = "knn", 
+                 trControl = ctrl, preProcess = c("center","scale"), metric="ROC", 
+                 tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+```
+
+```{r}
+#Visualizar los resultados de la búsqueda de parámetros realziada mediante Grid Search
+plot(model.rwo,main="Grid Search RWO")
+print(model.rwo)
+```
+Evaluamos el modelo
+```{r}
+model.rwo.pred <- predict(model.rwo,newdata = ecoli1.test)
+
+#Determinar matriz de confusión
+model.rwo.cm <- confusionMatrix(model.rwo.pred, ecoli1.test$Class,positive = "positive")
+
+#Calcular la curva ROC
+model.rwo.probs <- predict(model.rwo,newdata = ecoli1.test, type="prob")
+model.rwo.roc <- roc(ecoli1.test$Class,model.rwo.probs[,"positive"])
+```
+La matriz de confianza para este modelo:
+```{r}
+print(model.rwo.cm)
+```
+Curva ROC del modelo usando **RWO**:
+```{r}
+plot(model.adasyn.roc, type="S", print.thres= 0.5,main=c("ROC Test",'Datos RWO'),col="blue")
+```
+
+### Comparación de la distribución de clases
+
+Con la finalidad de analizar en mayor pofundidad los efectos del sobremuestreo sobre la distribución original de los datos, se va a comparar la distribución de clases de los datos originales con la distribución de clases de los datos tras aplicar sobremuestreo con *ADASYN*.
+
+Particionar y observar de forma gráfica la distribución de los atributos del dataset:
+---
+Primeramente comparamos mediante una nube de puntos en base a los atributos *Mcg* y *Gvh* coloreando los puntos según la clase a la que pertenecen
+
+#### Para los datos originales
+```{r}
+ggplot2::ggplot(ecoli1.train, aes(x=Mcg, y=Gvh, colour=Class)) +
+  geom_point()
+```
+
+#### Para los datos preprocesados con ADASYN
+```{r}
+ggplot2::ggplot(ecoli1.train.adasyn, aes(x=Mcg, y=Gvh, colour=Class)) +
+  geom_point()
+```
+
+A priori, se puede observar que el método a incrementado el número de patrones de la clase positiva tratando de mantener la distribución de patrones original.
+---
+Si representamos ahora otra nube de puntos en base a los atributos *Alm1* y *Alm2*:
+
+#### Para los datos originales
+```{r}
+ggplot2::ggplot(ecoli1.train, aes(x=Alm1, y=Alm2, colour=Class)) +
+  geom_point()
+```
+
+#### Para los datos preprocesados con ADASYN
+```{r}
+ggplot2::ggplot(ecoli1.train.adasyn, aes(x=Alm1, y=Alm2, colour=Class)) +
+  geom_point()
+```
+
+Por último, analizamos la distribución de los datos de cada variable según su clase
+
+#### Para los datos originales
+```{r}
+featurePlot(x=ecoli1.train[-c(3, 7)], y=ecoli1.train[,7], plot="box")
+```
+
+#### Para los datos preprocesados con ADASYN
+```{r}
+featurePlot(x=ecoli1.train.adasyn[-c(3, 7)], y=ecoli1.train.adasyn[,7], plot="box")
+```
+
+A grandes rasgos, se observa que la distribución de clases ha variado ligeramente para la clase positiva, además se aprecia que, para algunas variables, el método ha provocado el incremento en el número de *outliers*.

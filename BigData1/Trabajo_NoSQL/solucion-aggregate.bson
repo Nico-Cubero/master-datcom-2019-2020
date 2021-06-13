@@ -1,0 +1,73 @@
+///// Solución con aggregate
+db.runCommand(
+	{
+		"aggregate": "restaurants",
+		"pipeline": [
+				// Calcular el score más alto de cada grade y se eliminan
+				//aquellos que no sean mayores que 7
+				{$project: {
+							"_id": "$_id",
+							"address": "$address",
+							"borough": "$borough",
+							"cuisine": "$cuisine",
+							"max_grade_score": {$max: "$grades.score"},
+							"name": "$name",
+							"restaurant_id": "$restaurant_id"
+						}},
+				{$redact: {"$cond": [{"$gt": ["$max_grade_score", 7]},
+							"$$KEEP", "$$PRUNE"]}},
+				// Agrupar los restaurantes por cuisine anotando para cada ellos
+				// el score más alto de su grade
+				{$group: {"_id": "$cuisine",
+							"restaurante1": {$push: {
+									"address": "$address",
+									"borough": "$borough",
+									"max_grade_score": "$max_grade_score",
+									"name": "$name",
+									"restaurant_id": "$restaurant_id"
+								}},
+							"restaurante2": {$push: {
+									"address": "$address",
+									"borough": "$borough",
+									"max_grade_score": "$max_grade_score",
+									"name": "$name",
+									"restaurant_id": "$restaurant_id"
+								}},
+				}},
+				{$unwind: "$restaurante1"},
+				{$unwind: "$restaurante2"}, // Desanidar los restaurantes
+				{$project: {"_id": 0, "cuisine": "$_id",
+							"restaurante1": "$restaurante1",
+							"restaurante2": "$restaurante2",
+							"distancia": {$sqrt:{$sum: [
+												{$pow:[{$subtract:["$restaurante1.address.coord[0]","$restaurante2.address.coord[0]"]}, 2]},
+												{$pow:[{$subtract:["$restaurante1.address.coord[1]", "$restaurante2.address.coord[1]"]},2]}	
+												] }},
+							"restaurantes_evaluados": "$restaurante1.length"
+							}},
+				// Eliminar parejas de restaurantes redundantes y los que están
+				// a distancia 0
+				{$redact: {"$cond": [{$and:[{"$lt": ["$restaurante1.name",
+													"$restaurante2.name"]},
+											{"$ne":["$distancia",0.0]}]},
+									"$$KEEP","$$PRUNE"]}},
+				// Calcular la distancia mínima para cada cuisine
+				{$group: {_id: "$cuisine", "dist_min": {$min: "$distancia"},
+						"parejas":{$push: {restaurante1: "$restaurante1",
+											restaurante2: "$restaurante2",
+											distancia: "$distancia",
+											restaurantes_evaluados: "$restaurantes_evaluados"}}}},
+				{$unwind: "$parejas"}, //Desanidar parejas
+				// Quedarnos con la pareja que guarda distancia mínima
+				{$redact: {"$cond": [{$eq: ["$dist_min", "$parejas.distancia"]},
+							"$$KEEP", "$$PRUNE"]}},
+				{$project: {"_id": 0, "cuisine": "$_id",
+									"restaurante1": "$parejas.restaurante1",
+									"restaurante2": "$parejas.restaurante2",
+									"distancia": "$dist_min",
+									"restaurantes_evaluados": "$restaurantes_evaluados"}}
+			],
+			"allowDiskUse": true,
+			"cursor": { "batchSize": 180 }
+	}
+);
